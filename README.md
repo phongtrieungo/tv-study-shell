@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Planning complete (PRD, architecture, epics). App scaffold and surfaces are next — see [docs/index.md](docs/index.md).  
+> **Status:** Monorepo scaffold live (`apps/shell` + `packages/shared`). Surfaces and D-pad chrome come next — see [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -63,14 +63,17 @@ _bmad-output/         # PRD, architecture, research, sprint artifacts
 
 ## Getting started
 
-Scaffold is not committed yet. After the monorepo story lands, expect roughly:
+**Requirements:** Node.js **≥ 20**, and **pnpm 9.x** matching the root `packageManager` field (enable via [Corepack](https://nodejs.org/api/corepack.html): `corepack enable`, or install pnpm globally). Scaffold pins **TypeScript 5.9.3** and **Vite 6.4.3**.
 
 ```bash
 pnpm install
-pnpm --filter shell dev
+pnpm dev
+# equivalent: pnpm --filter shell dev
 ```
 
-Use arrow keys as D-pad, Enter to select, Backspace / Escape for Back. Exact scripts will be filled in when `apps/shell` exists.
+Shell serves at `http://localhost:5180`. You should see `TV Study Shell — @tvshell/shared` (proves the workspace package resolves).
+
+Arrow keys as D-pad, Enter to select, Backspace / Escape for Back land in later Epic 1 stories (menu / Safe Zone).
 
 ## Testing (UT / E2E / Emulator)
 

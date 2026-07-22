@@ -24,7 +24,8 @@ Generated: 2026-07-22 · Updated: 2026-07-22 (WebGL Lab promoted to MVP)
 | Technical research | `../_bmad-output/planning-artifacts/research/technical-tv-ui-stack-lightning-solidjs-canvas-webgl-research-2026-07-22.md` |
 | Domain research | `../_bmad-output/planning-artifacts/research/domain-smart-tv-home-live-epg-research-2026-07-22.md` |
 | Study plan | `../interview-study-plan.html` |
+| Study HTML convention | [study-guides.md](study-guides.md) |
 
 ## Next implementation step
 
-Run in a fresh chat: `bmad-create-story` for **1.1 Scaffold monorepo and Shell app** (or `bmad-dev-story` after story file exists). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
+Run `bmad-create-story` for **1.2 Shared fixtures and D-pad key map** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.

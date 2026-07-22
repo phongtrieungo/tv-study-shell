@@ -1,0 +1,9 @@
+# DO NOT EDIT the skill-shipped customize.toml — team overrides live here.
+# Merged by resolve_customization.py (arrays append; scalars override).
+
+[workflow]
+
+persistent_facts = [
+  "file:{project-root}/docs/study-guides.md",
+  "From Story 1.2 forward, complete the story study HTML (docs/study/{story-key}.html) before marking the story ready for review, unless the story explicitly waives it. Story 1.1 is exempt.",
+]
