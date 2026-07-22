@@ -1,5 +1,11 @@
 # Deferred Work
 
+## Deferred from: code review of 1-2-shared-fixtures-and-dpad-key-map.md (2026-07-22)
+
+- Smoke test imports compiled internal modules (`fixtures/index.js`, `input/index.js`) instead of the public `@tvshell/shared` barrel — strengthen in Story 7.1 Vitest coverage.
+- Smoke trusts `fixtureMeta.scheduleHoursPerChannel` and does not independently assert continuous per-channel 24h coverage or that every `program.channelId` exists in `channels` — strengthen in Story 7.1.
+- Smoke omits full D-pad matrix coverage (`getDpadAction`, all seven keys → semantic actions, unknown keys → null) — strengthen in Story 7.1.
+
 ## Deferred from: code review of 1-1-scaffold-monorepo-and-shell-app.md (2026-07-22)
 
 - Dual TypeScript pins in `apps/shell` and `packages/shared` with no pnpm `catalog:` / root single source — risk of version drift as packages grow.
