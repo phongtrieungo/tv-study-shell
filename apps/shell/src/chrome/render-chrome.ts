@@ -3,8 +3,12 @@ import { createSafeZoneGuide } from './safe-zone.js';
 export type ShellChrome = {
   root: HTMLElement;
   menuHost: HTMLElement;
+  surfaceHost: HTMLElement;
   statusEl: HTMLElement;
+  errorBanner: HTMLElement;
   setStatus: (message: string) => void;
+  setError: (message: string | null) => void;
+  setSurfaceActive: (active: boolean) => void;
 };
 
 export function renderChrome(appRoot: HTMLElement): ShellChrome {
@@ -29,16 +33,30 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
 
   const subtitle = document.createElement('p');
   subtitle.textContent =
-    'Safe Zone chrome + Surface menu. Select acknowledges a destination; mount/unmount lands in Story 1.4.';
+    'Safe Zone chrome + Surface menu. Select mounts a stub Surface; Back unmounts and returns here.';
 
   header.append(title, subtitle);
+
+  const errorBanner = document.createElement('div');
+  errorBanner.className = 'shell-error-banner';
+  errorBanner.dataset.testid = 'shell-error-banner';
+  errorBanner.setAttribute('role', 'alert');
+  errorBanner.hidden = true;
 
   const menuHost = document.createElement('div');
   menuHost.dataset.testid = 'surface-menu-host';
 
+  const surfaceHost = document.createElement('div');
+  surfaceHost.className = 'surface-host';
+  surfaceHost.dataset.testid = 'surface-host';
+  surfaceHost.tabIndex = -1;
+  surfaceHost.setAttribute('aria-label', 'Active Surface');
+  surfaceHost.hidden = true;
+
   const hint = document.createElement('p');
   hint.className = 'shell-hint';
-  hint.textContent = 'D-pad: ↑ / ↓ move · Enter select · Backspace / Escape Back (menu stays put for now)';
+  hint.textContent =
+    'D-pad: ↑ / ↓ move · Enter mount stub · Backspace / Escape Back (from Surface → menu)';
 
   const statusEl = document.createElement('div');
   statusEl.className = 'shell-status';
@@ -53,12 +71,48 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
     statusEl.append(strong, document.createTextNode(message));
   };
 
-  setStatus('Ready — focus a Surface and press Enter.');
+  const setError = (message: string | null) => {
+    if (!message) {
+      errorBanner.hidden = true;
+      errorBanner.replaceChildren();
+      return;
+    }
+    errorBanner.hidden = false;
+    errorBanner.replaceChildren();
+    const strong = document.createElement('strong');
+    strong.textContent = 'Error: ';
+    errorBanner.append(strong, document.createTextNode(message));
+  };
+
+  const setSurfaceActive = (active: boolean) => {
+    root.classList.toggle('is-surface-active', active);
+    menuHost.hidden = active;
+    surfaceHost.hidden = !active;
+    hint.textContent = active
+      ? 'Surface active — Backspace / Escape returns to the menu and unmounts the stub.'
+      : 'D-pad: ↑ / ↓ move · Enter mount stub · Backspace / Escape Back (from Surface → menu)';
+
+    if (active) {
+      // Move focus off the now-hidden menu control (AT / keyboard ownership).
+      surfaceHost.focus({ preventScroll: true });
+    }
+  };
+
+  setStatus('Ready — focus a Surface and press Enter to mount the stub.');
 
   // Label lives inside chrome padding so teaching copy stays in the Safe Zone.
-  chrome.append(label, header, menuHost, hint, statusEl);
+  chrome.append(label, header, errorBanner, menuHost, surfaceHost, hint, statusEl);
   root.append(frame, chrome);
   appRoot.append(root);
 
-  return { root, menuHost, statusEl, setStatus };
+  return {
+    root,
+    menuHost,
+    surfaceHost,
+    statusEl,
+    errorBanner,
+    setStatus,
+    setError,
+    setSurfaceActive,
+  };
 }

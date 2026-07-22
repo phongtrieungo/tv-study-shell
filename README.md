@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Shell shows Safe Zone chrome + a focusable Surface menu (`apps/shell` + `packages/shared`). Surface mount/unmount is next — see [docs/index.md](docs/index.md).  
+> **Status:** Shell shows Safe Zone chrome, a focusable Surface menu, and a documented `mount`/`unmount` host that drives a stub Surface (`apps/shell` + `packages/shared` + `packages/surface-stub`). Real Lab Surfaces land in Epics 2–5 — see [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -47,9 +47,10 @@ Interview stacks (Lightning / Blits, SolidJS, **WebGL** / Canvas, Smart TV const
 
 ```text
 apps/
-  shell/              # Vite TS host + surface menu
+  shell/              # Vite TS host + surface menu + mount/unmount host
 packages/
   shared/             # fixtures, D-pad map, Visible Window math, types
+  surface-stub/       # Story 1.4 stub Surface (cleanup proof)
   epg-canvas/         # Lab A — Canvas EPG
   webgl-lab/          # Lab W — raw WebGL
   home-blits/         # Lab B — Home (Lightning/Blits)
@@ -73,7 +74,7 @@ pnpm dev
 
 Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Use arrow keys as D-pad and Enter to select (shared map in `@tvshell/shared`). Select currently **acknowledges** the destination in the status line — the Surface host `mount` / `unmount` contract lands in Story **1.4**.
+Use arrow keys as D-pad and Enter to **mount** the stub Surface (shared map in `@tvshell/shared`). Back (Backspace / Escape) **unmounts** and returns to the menu — the stub clears its test listener/timer (AD-6 proof). Real EPG / WebGL / Home / Live packages still land in Epics 2–5; Story **6.2** Memory Soak validates cleanup across those Surfaces (the stub is the contract proof, not a 30‑minute soak report).
 
 ## Testing (UT / E2E / Emulator)
 

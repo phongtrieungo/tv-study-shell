@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Epic 1 Study Guide: Monorepo Shell Foundation</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .arc {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .arc-step {
+        border-left: 3px solid var(--accent-2);
+        padding-left: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Epic 1 synthesis</p>
+        <h1>Monorepo Shell Foundation</h1>
+        <p>
+          One start→end picture of Epic 1: how a Vite/pnpm monorepo becomes a TV-shaped Shell that can
+          <strong>mount and unmount Surfaces with cleanup</strong> — before Canvas, WebGL, Blits, or Solid Labs arrive.
+        </p>
+      </header>
+
+      <section>
+        <h2>The problem this epic solves</h2>
+        <p>
+          Interview stacks (Lightning/Blits, Solid, Canvas, WebGL, Smart TV constraints) do not stick as slideware.
+          You need a single runnable app where navigation chrome, shared data/input, and Surface lifecycle are real —
+          so later Labs plug into a contract instead of inventing their own shell each time.
+        </p>
+        <ul>
+          <li><strong>FR-1 / FR-3:</strong> Launch a Safe Zone Shell and choose a Surface.</li>
+          <li><strong>FR-2 / AD-2 / AD-6:</strong> Switch Surfaces via documented mount/unmount and dispose side effects.</li>
+          <li><strong>AD-3 / AD-4:</strong> One Mock Data plane and one D-pad map for every Surface.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Learning arc (1.1 → 1.4)</h2>
+        <div class="arc">
+          <div class="arc-step">
+            <h3>1.1 — Scaffold</h3>
+            <p>
+              pnpm workspaces, Vite + TypeScript Shell on <code>:5180</code>, <code>@tvshell/shared</code> importable.
+              No React. Proves the monorepo runs.
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>1.2 — Shared fixtures + D-pad map</h3>
+            <p>
+              ≥50 channels, ≥24h programs, Home rail ≥12 items; <code>KEY</code> / <code>getDpadAction</code>.
+              Vocabulary every Lab will share. Study HTML DoD begins here.
+            </p>
+            <p class="muted">
+              Deep dive:
+              <a href="1-2-shared-fixtures-and-dpad-key-map.html">1-2 study guide</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>1.3 — Safe Zone + Surface menu</h3>
+            <p>
+              Visible ~5% Safe Zone; focusable Home / Live / EPG / WebGL Lab. Select acknowledged only —
+              <strong>Select ≠ mount</strong> yet. Thin DOM Shell owns chrome.
+            </p>
+            <p class="muted">
+              Deep dive:
+              <a href="1-3-safe-zone-shell-chrome-and-surface-menu.html">1-3 study guide</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>1.4 — Host mount/unmount contract</h3>
+            <p>
+              Stub Surface package; Shell host registry; Enter mounts, Back unmounts; listener/timer cleared
+              (<code>hasActiveSideEffects()</code>). Error banner on mount failure.
+            </p>
+            <p class="muted">
+              Deep dive:
+              <a href="1-4-surface-host-mount-unmount-contract.html">1-4 study guide</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>How the pieces fit</h2>
+        <pre><code>apps/shell          thin DOM chrome + menu + Surface host
+packages/shared     fixtures + D-pad map + types
+packages/surface-stub   proves mount/unmount cleanup (temporary)
+
+menu → select → host.enter(id) → module.mount(hostEl)
+Back → host.leave() → module.unmount() → menu</code></pre>
+        <p>
+          All four menu ids currently resolve to the stub via a registry. Epic 2 swaps <code>epg</code> to
+          <code>@tvshell/epg-canvas</code> without rewriting Shell chrome.
+        </p>
+      </section>
+
+      <section>
+        <h2>Demo / interview script (≈ 3 minutes)</h2>
+        <ol>
+          <li><code>pnpm install && pnpm dev</code> → open <code>http://localhost:5180</code>.</li>
+          <li>Point at the dashed Safe Zone; explain overscan vs portfolio 5% convention.</li>
+          <li>Arrow through destinations; name the shared D-pad map (not ad-hoc key codes).</li>
+          <li>Enter → stub mounts; note the cleanup probe ticking.</li>
+          <li>Escape/Back → unmount; status says side effects cleared; probe is false.</li>
+          <li>Whiteboard: Shell owns enter/leave; Surface disposes what it created (AD-6).</li>
+          <li>Honesty: desktop Chromium + keyboard proxy; stub ≠ Memory Soak; real Labs arrive next.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>No real EPG / WebGL / Home / Live packages yet — only the stub.</li>
+          <li>Vitest / Playwright deferred to Epic 7; quality gate here was typecheck + build + manual smoke.</li>
+          <li>Blits iframe vs embed mount strategy still deferred to Story 4.1.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What Epic 2 builds on</h2>
+        <p>
+          Canvas EPG needs: shared fixtures for the grid, shared D-pad for focus, and the host contract so
+          leave disposes RAF/canvas resources the same way the stub cleared its timer/listener.
+        </p>
+        <p class="muted">Next story: 2.1 — <code>packages/epg-canvas</code> Visible Window math.</p>
+      </section>
+
+      <section>
+        <h2>Story study guides</h2>
+        <ul>
+          <li><a href="1-2-shared-fixtures-and-dpad-key-map.html">1.2 Shared fixtures and D-pad key map</a></li>
+          <li><a href="1-3-safe-zone-shell-chrome-and-surface-menu.html">1.3 Safe Zone shell chrome and Surface menu</a></li>
+          <li><a href="1-4-surface-host-mount-unmount-contract.html">1.4 Surface host mount/unmount contract</a></li>
+        </ul>
+        <p class="muted">Story 1.1 (scaffold) has no study page by convention.</p>
+      </section>
+    </main>
+  </body>
+</html>

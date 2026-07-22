@@ -28,9 +28,11 @@ Generated: 2026-07-22 · Updated: 2026-07-22 (WebGL Lab promoted to MVP)
 
 ## Study guides
 
+- **Epic 1:** [Monorepo Shell Foundation](study/epic-1-monorepo-shell-foundation.html) (synthesis)
 - Story 1.2: [Shared fixtures and D-pad key map](study/1-2-shared-fixtures-and-dpad-key-map.html)
 - Story 1.3: [Safe Zone shell chrome and surface menu](study/1-3-safe-zone-shell-chrome-and-surface-menu.html)
+- Story 1.4: [Surface host mount/unmount contract](study/1-4-surface-host-mount-unmount-contract.html)
 
 ## Next implementation step
 
-Run `bmad-create-story` for **1.4 Surface host mount/unmount contract** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
+Run `bmad-create-story` for **2.1 EPG canvas package with Visible Window math** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
