@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Plan — Senior FE WebGL / TV Performance</title>
+  <style>
+    :root {
+      --bg: #07050f;
+      --surface: #110d1c;
+      --surface-2: #1a1428;
+      --card: #161022;
+      --line: #2d2440;
+      --text: #f0ebff;
+      --muted: #a89bc4;
+      --accent: #a78bfa;
+      --accent-2: #34d399;
+      --warn: #fbbf24;
+      --gap: #f87171;
+      --cyan: #22d3ee;
+      --strong: #c4b5fd;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(900px 500px at 0% -5%, rgba(167, 139, 250, 0.14), transparent 55%),
+        radial-gradient(700px 400px at 100% 0%, rgba(34, 211, 238, 0.08), transparent 50%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .layout { display: grid; grid-template-columns: 290px 1fr; min-height: 100vh; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: rgba(17, 13, 28, 0.95);
+      border-right: 1px solid var(--line);
+      padding: 24px 16px 40px;
+    }
+
+    nav .brand {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    nav h1 { font-size: 17px; line-height: 1.35; margin: 6px 0 8px; }
+    nav .meta { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+
+    nav .toc-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin: 14px 0 6px;
+    }
+
+    nav ul { list-style: none; }
+    nav li { margin-bottom: 3px; }
+
+    nav a {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12.5px;
+      text-decoration: none;
+    }
+
+    nav a:hover { background: var(--surface-2); color: var(--accent); text-decoration: none; }
+
+    main { padding: 32px 36px 80px; max-width: 940px; }
+
+    .hero {
+      background: linear-gradient(135deg, #1a1033, #120a24 50%, #0f1a2e);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 26px;
+      margin-bottom: 28px;
+    }
+
+    .hero h2 { font-size: 26px; margin-bottom: 8px; }
+    .hero p { color: var(--muted); max-width: 68ch; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid;
+    }
+
+    .badge.green { background: rgba(52,211,153,.12); border-color: rgba(52,211,153,.35); color: #a7f3d0; }
+    .badge.blue { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.35); color: #a5f3fc; }
+    .badge.warn { background: rgba(251,191,36,.12); border-color: rgba(251,191,36,.35); color: #fde68a; }
+    .badge.gap { background: rgba(248,113,113,.12); border-color: rgba(248,113,113,.35); color: #fecaca; }
+
+    section { margin-bottom: 34px; scroll-margin-top: 20px; }
+
+    section > h2 {
+      font-size: 21px;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section > h2 .num {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--bg);
+      background: var(--accent);
+      width: 26px; height: 26px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lede { color: var(--muted); margin-bottom: 14px; max-width: 72ch; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+
+    .card h3 { font-size: 16px; margin-bottom: 8px; color: #f5f0ff; }
+    .card h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin: 12px 0 6px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: var(--surface-2);
+    }
+
+    .status {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    .status.strong { background: rgba(52,211,153,.15); color: var(--accent-2); }
+    .status.ok { background: rgba(167,139,250,.15); color: var(--accent); }
+    .status.prep { background: rgba(251,191,36,.15); color: var(--warn); }
+    .status.gap { background: rgba(248,113,113,.15); color: var(--gap); }
+
+    ul, ol { padding-left: 18px; }
+    li { margin-bottom: 6px; color: #ddd6fe; }
+
+    code, .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+      background: #0a0612;
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: var(--cyan);
+    }
+
+    pre {
+      background: #0a0612;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #cbd5e1;
+      margin: 10px 0;
+    }
+
+    .callout {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 12px 0;
+      border: 1px solid;
+      font-size: 14px;
+    }
+
+    .callout.tip { background: rgba(52,211,153,.08); border-color: rgba(52,211,153,.3); }
+    .callout.warn { background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.3); }
+    .callout.gap { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.3); }
+    .callout strong { display: block; margin-bottom: 4px; }
+
+    .phase {
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .phase h3 { font-size: 14px; color: var(--accent); margin-bottom: 8px; }
+    .phase ul { font-size: 13px; }
+
+    .q { border-left: 3px solid var(--strong); padding-left: 12px; margin: 10px 0; }
+    .q .ask { font-weight: 600; color: #e9d5ff; margin-bottom: 4px; }
+    .q .ans { color: var(--muted); font-size: 14px; }
+
+    .checklist label {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .checklist input { margin-top: 4px; accent-color: var(--accent); }
+
+    .diagram {
+      background: #0a0612;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #94a3b8;
+      overflow-x: auto;
+    }
+
+    footer {
+      margin-top: 36px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: relative; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+      main { padding: 22px 16px 60px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    @media print {
+      nav { display: none; }
+      .layout { display: block; }
+      body { background: #fff; color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav>
+      <div class="brand">Study Plan</div>
+      <h1>Senior FE — WebGL / TV Performance</h1>
+      <div class="meta">
+        Consultancy · Vietnam · Global team<br>
+        Paired CV: <a href="./phong-trieu-ngo-cv.html">phong-trieu-ngo-cv.html</a>
+      </div>
+
+      <div class="toc-label">Plan</div>
+      <ul>
+        <li><a href="#snapshot">1. Role snapshot</a></li>
+        <li><a href="#gap-map">2. You vs JD map</a></li>
+        <li><a href="#strategy">3. Positioning strategy</a></li>
+        <li><a href="#rendering">4. Browser rendering</a></li>
+        <li><a href="#performance">5. Performance engineering</a></li>
+        <li><a href="#webgl-canvas">6. WebGL &amp; Canvas</a></li>
+        <li><a href="#frameworks">7. SolidJS / Lightning / Blits</a></li>
+        <li><a href="#tv">8. Smart TV constraints</a></li>
+        <li><a href="#epg">9. Home / Live TV / EPG</a></li>
+        <li><a href="#cv-stories">10. CV → interview stories</a></li>
+        <li><a href="#questions">11. Likely questions</a></li>
+        <li><a href="#roadmap">12. 6-week roadmap</a></li>
+        <li><a href="#labs">13. Hands-on labs</a></li>
+        <li><a href="#checklist">14. Checklist</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <div class="hero" id="snapshot">
+        <h2>Build a TV-grade frontend mindset</h2>
+        <p>
+          This role is <strong>not</strong> a typical React dashboard job. It targets engineers who understand
+          rendering cost, memory budgets, and canvas/WebGL-style UI on constrained TV hardware. Your baseline CV
+          is strong on TypeScript, large-scale apps, and performance-conscious complex UI — this plan closes the
+          gap on WebGL, Lightning V3, SolidJS, and Smart TV specifics.
+        </p>
+        <div class="badges">
+          <span class="badge green">Strong: TS/JS · large apps · complex UI</span>
+          <span class="badge blue">Transferable: live updates · dashboards · cross-browser</span>
+          <span class="badge warn">Prep: browser rendering pipeline depth</span>
+          <span class="badge gap">Gap: WebGL · Lightning · SolidJS · Smart TV</span>
+        </div>
+      </div>
+
+      <!-- 2 Gap map -->
+      <section id="gap-map">
+        <h2><span class="num">2</span> You vs JD requirement map</h2>
+        <p class="lede">Every JD line mapped to your evidence, study priority, and interview framing.</p>
+        <div class="card" style="padding:0; overflow:hidden;">
+          <table>
+            <thead>
+              <tr>
+                <th>JD requirement</th>
+                <th>Your evidence (from CV)</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Strong JavaScript / TypeScript</td>
+                <td>11+ years; Angular 4→19; enterprise delivery</td>
+                <td><span class="status strong">Strong</span></td>
+                <td>Lead with depth + large-codebase judgment</td>
+              </tr>
+              <tr>
+                <td>Large-scale web applications</td>
+                <td>Edulog, finance platforms, e-commerce, portfolio migration</td>
+                <td><span class="status strong">Strong</span></td>
+                <td>Quantify scale: teams, modules, users, data volume</td>
+              </tr>
+              <tr>
+                <td>Optimization &amp; performance tuning</td>
+                <td>CH upgrade perf; AU dashboard refactor; IE11 constraints</td>
+                <td><span class="status ok">Solid</span></td>
+                <td>Add metrics: before/after if possible; DevTools story</td>
+              </tr>
+              <tr>
+                <td>Rendering perf, memory, responsiveness</td>
+                <td>Map UI, live tracking, SignalR, micro-frontends</td>
+                <td><span class="status ok">Solid</span></td>
+                <td>Translate SPA patterns → TV memory budgets</td>
+              </tr>
+              <tr>
+                <td>Browser rendering / canvas / graphics concepts</td>
+                <td>Implicit via DOM perf; not canvas-first production</td>
+                <td><span class="status prep">Prep</span></td>
+                <td>Study pipeline + canvas/WebGL fundamentals (Week 2–3)</td>
+              </tr>
+              <tr>
+                <td>WebGL (nice to have → often tested)</td>
+                <td>No production WebGL on CV</td>
+                <td><span class="status gap">Gap</span></td>
+                <td>Build mini WebGL/canvas lab; explain GPU vs DOM</td>
+              </tr>
+              <tr>
+                <td>Lightning V3 / SolidJS / Blits</td>
+                <td>Angular/Vue background; no Lightning/SolidJS shipped</td>
+                <td><span class="status gap">Gap</span></td>
+                <td>Run Lightning + SolidJS hello-world; compare to React</td>
+              </tr>
+              <tr>
+                <td>Smart TV / web-based TV apps</td>
+                <td>No direct TV platform experience</td>
+                <td><span class="status gap">Gap</span></td>
+                <td>Study Tizen/webOS constraints + remote navigation</td>
+              </tr>
+              <tr>
+                <td>Home / Live TV / EPG optimization</td>
+                <td>Edulog map+grid; finance live data; dashboards</td>
+                <td><span class="status ok">Transferable</span></td>
+                <td>Frame as “complex navigable surfaces + live data”</td>
+              </tr>
+              <tr>
+                <td>Global engineering collaboration</td>
+                <td>UK, CA, CH, AU clients; English working</td>
+                <td><span class="status strong">Strong</span></td>
+                <td>Remote async + timezone examples</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 3 Strategy -->
+      <section id="strategy">
+        <h2><span class="num">3</span> Positioning strategy (honest + competitive)</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>What to lead with</h3>
+            <ul>
+              <li>Senior TypeScript engineer who optimizes <em>complex, data-heavy UI</em></li>
+              <li>Performance discipline on map, grid, dashboard, and live-update surfaces</li>
+              <li>Architecture judgment: micro-frontends, state isolation, bundle control</li>
+              <li>Cross-browser / constrained-device experience (IE11 era)</li>
+              <li>Global remote delivery in English</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>What NOT to overclaim</h3>
+            <ul>
+              <li>“Expert in WebGL” or “5 years Smart TV”</li>
+              <li>“Shipped Lightning V3 in production”</li>
+              <li>Generic React buzzwords — JD explicitly avoids React-centric profile</li>
+            </ul>
+            <div class="callout tip">
+              <strong>Winning phrase</strong>
+              “My production strength is performance-conscious TypeScript UI at scale. I’m deliberately upskilling into canvas/WebGL and TV rendering stacks because the problems rhyme: memory budgets, smooth navigation, and render cost on weak hardware.”
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 Rendering -->
+      <section id="rendering">
+        <h2><span class="num">4</span> Browser rendering pipeline (must-know)</h2>
+        <p class="lede">Interviewers expect you to explain <em>why</em> TV apps avoid heavy DOM and prefer canvas/WebGL.</p>
+
+        <div class="diagram">
+User input → JavaScript → Style → Layout → Paint → Composite
+                              ↑           ↑
+                         reflow costly   layer / GPU compositing
+
+DOM-heavy SPA pain on TV:
+  • Many nodes → layout + style recalc
+  • Large images → memory pressure
+  • Animations on layout props → jank
+
+Canvas / WebGL path:
+  • Fewer DOM nodes; draw commands on GPU
+  • Better control over frame budget (16ms @ 60fps, 33ms @ 30fps TV)
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Core concepts</h3>
+            <ul>
+              <li><strong>Critical rendering path:</strong> HTML → CSSOM → render tree → layout → paint</li>
+              <li><strong>Reflow vs repaint:</strong> geometry change vs visual-only change</li>
+              <li><strong>Compositor layers:</strong> transform/opacity cheaper than top/left/width</li>
+              <li><strong>Main thread vs GPU:</strong> what blocks scrolling/animation</li>
+              <li><strong>requestAnimationFrame:</strong> sync draws to display refresh</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Connect to your Angular work</h3>
+            <ul>
+              <li><code>OnPush</code> change detection = fewer unnecessary renders</li>
+              <li><code>trackBy</code> = stable list identity, less DOM churn</li>
+              <li>Virtual scroll = EPG-like long lists without full DOM</li>
+              <li>Lazy routes / micro-frontends = memory isolation on TV</li>
+              <li>SignalR partial updates = Live TV data refresh pattern</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 Performance -->
+      <section id="performance">
+        <h2><span class="num">5</span> Performance engineering toolkit</h2>
+        <div class="card">
+          <h3>Profiling workflow (memorize this loop)</h3>
+          <ol>
+            <li><strong>Measure</strong> — Lighthouse, Performance panel, Memory heap snapshots</li>
+            <li><strong>Identify</strong> — long tasks, layout thrashing, GC spikes, image leaks</li>
+            <li><strong>Hypothesize</strong> — DOM count? rerenders? uncached textures?</li>
+            <li><strong>Fix</strong> — virtualize, batch, pool objects, reduce layers</li>
+            <li><strong>Verify</strong> — compare filmstrip / FPS / heap after fix</li>
+          </ol>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Memory on constrained devices</h3>
+            <ul>
+              <li>Object pooling for list tiles / EPG rows</li>
+              <li>Dispose textures, event listeners, subscriptions</li>
+              <li>Avoid retaining detached DOM nodes (heap snapshot → Detached)</li>
+              <li>Image sizing: serve TV-resolution assets, not 4K web assets</li>
+              <li>Code-splitting; unload off-screen routes</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Responsiveness patterns</h3>
+            <ul>
+              <li>Defer non-critical work (<code>requestIdleCallback</code> where supported)</li>
+              <li>Web Workers for heavy parsing (EPG JSON)</li>
+              <li>Incremental render: paint visible window first</li>
+              <li>Input latency: D-pad focus must feel instant on TV</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Bring numbers to interviews</strong>
+          Even rough metrics help: “Reduced initial render nodes by virtualizing grid”, “Cut bundle chunk by lazy-loading map module”, “Eliminated memory leak from unsubscribed observables.”
+        </div>
+      </section>
+
+      <!-- 6 WebGL Canvas -->
+      <section id="webgl-canvas">
+        <h2><span class="num">6</span> WebGL &amp; Canvas fundamentals</h2>
+        <p class="lede">Nice-to-have on paper — often essential in practice for this role.</p>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Canvas 2D (stepping stone)</h3>
+            <ul>
+              <li><code>getContext('2d')</code> — immediate mode drawing</li>
+              <li>Good for UI sprites, text, simple grids</li>
+              <li>CPU-bound at scale; know limits</li>
+              <li>Double buffering / offscreen canvas patterns</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>WebGL basics</h3>
+            <ul>
+              <li>GPU pipeline: vertices → shaders → rasterization → framebuffer</li>
+              <li>Buffers, textures, draw calls, blend modes</li>
+              <li>Batch draws to reduce call overhead</li>
+              <li>Power-of-two textures; mipmaps; atlases</li>
+              <li>WebGL1 vs WebGL2 on TV browsers (check platform)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Mini mental model: DOM vs Canvas vs WebGL</h3>
+          <pre>DOM/React/Angular     → great for forms, accessibility, rapid product UI
+Canvas 2D             → custom grids, charts, lightweight game-like UI
+WebGL                 → heavy animation, video surfaces, large visual catalogs
+Lightning / Blits     → TV-optimized scene graph + GPU rendering abstraction</pre>
+        </div>
+
+        <div class="callout tip">
+          <strong>Week 3 lab</strong>
+          Build a virtualized EPG grid in Canvas 2D: 7 days × 48 half-hour slots, only render visible rows/columns, navigate with arrow keys. Then explain how you'd move it to WebGL/Lightning.
+        </div>
+      </section>
+
+      <!-- 7 Frameworks -->
+      <section id="frameworks">
+        <h2><span class="num">7</span> SolidJS, Lightning V3, Blits</h2>
+        <p class="lede">JD names these explicitly — understand philosophy, not just syntax.</p>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>Tech</th>
+                <th>What it is</th>
+                <th>Why TV teams use it</th>
+                <th>Study action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>SolidJS</strong></td>
+                <td>Fine-grained reactive UI (signals), no virtual DOM</td>
+                <td>Predictable updates, less render overhead than React</td>
+                <td>Build counter + list app; compare to Angular change detection</td>
+              </tr>
+              <tr>
+                <td><strong>Lightning V3</strong></td>
+                <td>WebGL/canvas TV UI framework (successor to LightningJS)</td>
+                <td>Built for STB/TV performance, focus, shaders, textures</td>
+                <td>Clone starter; render row of focusable tiles with D-pad</td>
+              </tr>
+              <tr>
+                <td><strong>Blits</strong></td>
+                <td>Lightweight TV app framework (Philips / Metrological ecosystem)</td>
+                <td>Component model optimized for embedded TV browsers</td>
+                <td>Read docs; compare component lifecycle to Lightning</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>SolidJS — key ideas</h3>
+            <ul>
+              <li><code>createSignal</code>, <code>createEffect</code>, <code>createMemo</code></li>
+              <li>UI updates trace to precise dependencies</li>
+              <li>No VDOM diff — important talking point vs React</li>
+              <li>JSX feels React-like but execution model differs</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Lightning V3 — key ideas</h3>
+            <ul>
+              <li>Scene graph: parent/child elements, transforms, z-index</li>
+              <li>Focus management for remote control navigation</li>
+              <li>Textures from images; smooth focus/scroll animations</li>
+              <li>Often paired with app routers and data layers</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout warn">
+          <strong>Interview bridge from Angular</strong>
+          “Angular taught me to control change propagation and bundle size. SolidJS/Lightning push that further by avoiding VDOM or DOM altogether — that's the direction TV apps need.”
+        </div>
+      </section>
+
+      <!-- 8 TV -->
+      <section id="tv">
+        <h2><span class="num">8</span> Smart TV platform constraints</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Hardware reality</h3>
+            <ul>
+              <li>Low RAM (often 512MB–1.5GB for app)</li>
+              <li>Weak CPU; GPU varies by chipset</li>
+              <li>30fps or 60fps targets; dropped frames very visible at 3m viewing distance</li>
+              <li>Cold start time matters (app launch from launcher)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Platform landscape</h3>
+            <ul>
+              <li><strong>Tizen</strong> (Samsung) — web apps, specific APIs</li>
+              <li><strong>webOS</strong> (LG)</li>
+              <li><strong>Android TV / Fire TV</strong> — WebView or native hybrid</li>
+              <li>Embedded Chromium versions often < desktop evergreen</li>
+              <li>Certification &amp; memory limits per store</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>TV UX vs web UX</h3>
+          <ul>
+            <li><strong>D-pad navigation:</strong> focus ring, spatial navigation, no hover</li>
+            <li><strong>Safe zones:</strong> overscan margins on older TVs</li>
+            <li><strong>10-foot UI:</strong> larger type, fewer elements per screen</li>
+            <li><strong>Back button behavior:</strong> predictable stack navigation</li>
+            <li><strong>Long session:</strong> memory leaks become showstoppers</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 9 EPG -->
+      <section id="epg">
+        <h2><span class="num">9</span> Home, Live TV &amp; EPG patterns</h2>
+        <p class="lede">Map JD screen types to what you've already built.</p>
+
+        <div class="card">
+          <table>
+            <thead>
+              <tr>
+                <th>TV screen</th>
+                <th>Technical challenge</th>
+                <th>Your CV parallel</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Home</strong></td>
+                <td>Horizontal rails, poster grids, lazy image load, focus memory</td>
+                <td>Dashboard modules; reusable component library (CH)</td>
+              </tr>
+              <tr>
+                <td><strong>Live TV</strong></td>
+                <td>Low-latency metadata overlay; stream + UI compositing</td>
+                <td>SignalR live updates (London); live bus tracking (Edulog)</td>
+              </tr>
+              <tr>
+                <td><strong>EPG</strong></td>
+                <td>Large 2D scrollable grid; virtualize rows/columns; time windowing</td>
+                <td>Edulog spreadsheet-style roster + map; high-volume grid UX</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>EPG optimization checklist</h3>
+          <ul>
+            <li>Render only visible time range + channel window</li>
+            <li>Recycle row/cell objects (object pool)</li>
+            <li>Precompute layout metrics; avoid measuring DOM per cell</li>
+            <li>Debounce fast horizontal/vertical scroll</li>
+            <li>Separate “now line” animation from full grid redraw</li>
+            <li>Prefetch adjacent window data; cache program metadata</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 10 Stories -->
+      <section id="cv-stories">
+        <h2><span class="num">10</span> CV projects → STAR stories for this role</h2>
+
+        <div class="card">
+          <h3>1) Edulog — complex navigable UI at scale</h3>
+          <p style="color:var(--muted)"><strong>S:</strong> Routing platform with map + grid workflows · <strong>T:</strong> Keep UI responsive with large datasets · <strong>A:</strong> Micro-frontends, async state, architectural guidance · <strong>R:</strong> Stable delivery of performance-sensitive features<br><em>TV angle:</em> “Same class of problem as EPG/Home — large surface, focus paths, live data.”</p>
+        </div>
+        <div class="card">
+          <h3>2) Switzerland — performance on constrained browsers</h3>
+          <p style="color:var(--muted)"><strong>S:</strong> Legacy Angular 4, heavy logic · <strong>T:</strong> Upgrade without losing responsiveness · <strong>A:</strong> Planned migration, perf passes, IE11 compatibility · <strong>R:</strong> Faster, more stable app<br><em>TV angle:</em> “TV browsers feel like IE-era constraints — perf and memory are not optional.”</p>
+        </div>
+        <div class="card">
+          <h3>3) London — live updating finance UI</h3>
+          <p style="color:var(--muted)"><strong>S:</strong> Marketplace + portfolio merge · <strong>T:</strong> Responsive UI under streaming updates · <strong>A:</strong> RxJS + SignalR patterns, partial UI refresh · <strong>R:</strong> Cohesive real-time experience<br><em>TV angle:</em> “Live TV metadata overlays need the same partial-update discipline.”</p>
+        </div>
+        <div class="card">
+          <h3>4) Australia — dashboard performance refactor</h3>
+          <p style="color:var(--muted)"><strong>S:</strong> Monitoring dashboard with operational load · <strong>T:</strong> Improve speed and maintainability · <strong>A:</strong> Structure refactor, perf improvements · <strong>R:</strong> Clearer, faster admin UX<br><em>TV angle:</em> “Operational dashboards and TV Home both need fast first paint.”</p>
+        </div>
+      </section>
+
+      <!-- 11 Questions -->
+      <section id="questions">
+        <h2><span class="num">11</span> Likely interview questions</h2>
+        <div class="card">
+          <div class="q">
+            <div class="ask">Why canvas/WebGL instead of React for TV?</div>
+            <div class="ans">DOM/React overhead, memory from many nodes, layout cost, unpredictable rerenders. Canvas/WebGL gives controlled draw budget and better GPU use on weak hardware.</div>
+          </div>
+          <div class="q">
+            <div class="ask">How would you optimize an EPG grid?</div>
+            <div class="ans">Virtualize rows/columns, pool cells, batch draws, prefetch data windows, separate static chrome from animated “now” indicator, profile memory over 30+ min session.</div>
+          </div>
+          <div class="q">
+            <div class="ask">Explain a performance bug you fixed.</div>
+            <div class="ans">Use Switzerland or Australia story; structure: symptom → profile → root cause → fix → verification.</div>
+          </div>
+          <div class="q">
+            <div class="ask">Experience with WebGL / Lightning / Smart TV?</div>
+            <div class="ans">Honest: production strength in TS performance UI; active hands-on with Lightning/SolidJS/canvas labs; strong transfer from map/grid/live-update work.</div>
+          </div>
+          <div class="q">
+            <div class="ask">How do you approach D-pad focus navigation?</div>
+            <div class="ans">Spatial focus graph, visible focus states, predictable wrap/escape, restore focus on back navigation, minimize focus traps, test on device not just desktop keyboard.</div>
+          </div>
+          <div class="q">
+            <div class="ask">SolidJS vs React — why does it matter here?</div>
+            <div class="ans">Fine-grained reactivity avoids VDOM diff cost; updates only what changed — aligns with TV frame budget thinking.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12 Roadmap -->
+      <section id="roadmap">
+        <h2><span class="num">12</span> 6-week study roadmap</h2>
+        <div class="grid-3">
+          <div class="phase">
+            <h3>Week 1 — Foundation</h3>
+            <ul>
+              <li>Rendering pipeline deep read + notes</li>
+              <li>Chrome Performance/Memory labs on any heavy SPA</li>
+              <li>Rehearse 4 STAR stories with TV framing</li>
+              <li>Read Lightning + SolidJS overview docs</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <h3>Week 2 — Canvas &amp; profiling</h3>
+            <ul>
+              <li>Canvas 2D EPG prototype (virtualized)</li>
+              <li>Arrow-key focus navigation</li>
+              <li>Measure FPS + memory over scroll</li>
+              <li>Document before/after optimizations</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <h3>Week 3 — WebGL intro</h3>
+            <ul>
+              <li>WebGL fundamentals (triangles, textures)</li>
+              <li>Render a textured tile grid</li>
+              <li>Compare CPU canvas vs GPU approach</li>
+              <li>Write 1-page comparison for interview</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <h3>Week 4 — Lightning V3</h3>
+            <ul>
+              <li>Lightning starter app</li>
+              <li>Horizontal rail + focus</li>
+              <li>Image texture loading patterns</li>
+              <li>Memory cleanup on route change</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <h3>Week 5 — SolidJS + TV UX</h3>
+            <ul>
+              <li>SolidJS signals mini-app</li>
+              <li>Blits docs skim + comparison table</li>
+              <li>TV safe zones + 10-foot UI guidelines</li>
+              <li>Tizen/webOS constraint reading</li>
+            </ul>
+          </div>
+          <div class="phase">
+            <h3>Week 6 — Mock &amp; portfolio</h3>
+            <ul>
+              <li>Combine best lab into GitHub README</li>
+              <li>2× 60-min mock interviews (record)</li>
+              <li>Finalize tailored CV PDF</li>
+              <li>Prepare questions for them</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 13 Labs -->
+      <section id="labs">
+        <h2><span class="num">13</span> Hands-on labs (priority order)</h2>
+        <div class="card">
+          <ol>
+            <li><strong>Lab A — Virtual EPG (Canvas 2D):</strong> 50 channels × 24h grid, windowed render, D-pad nav</li>
+            <li><strong>Lab B — Home rail (Lightning V3):</strong> Lazy-load poster textures, smooth horizontal focus scroll</li>
+            <li><strong>Lab C — Live badge (SolidJS):</strong> Signal-driven “now playing” strip updating every second without full rerender</li>
+            <li><strong>Lab D — Memory soak:</strong> Run app 30 min; heap snapshot diff; fix listener/texture leaks</li>
+            <li><strong>Lab E — Angular perf audit:</strong> Profile Edulog-style map module; document top 3 wins (transfer story)</li>
+          </ol>
+        </div>
+
+        <div class="callout tip">
+          <strong>Portfolio tip</strong>
+          One polished GitHub repo with a short README beats five half-finished demos. Lead with Lab A or B — closest to JD language.
+        </div>
+      </section>
+
+      <!-- 14 Checklist -->
+      <section id="checklist">
+        <h2><span class="num">14</span> Pre-interview checklist</h2>
+        <div class="card checklist">
+          <label><input type="checkbox"> Tailored CV exported from <a href="./phong-trieu-ngo-cv.html">phong-trieu-ngo-cv.html</a></label>
+          <label><input type="checkbox"> Can whiteboard browser rendering pipeline in 2 minutes</label>
+          <label><input type="checkbox"> Can explain DOM vs Canvas vs WebGL trade-offs</label>
+          <label><input type="checkbox"> EPG virtualization approach rehearsed</label>
+          <label><input type="checkbox"> SolidJS reactivity explained without saying “it's like React”</label>
+          <label><input type="checkbox"> Lightning V3 hello-world completed</label>
+          <label><input type="checkbox"> TV constraints (memory, D-pad, 10-foot UI) memorized</label>
+          <label><input type="checkbox"> 4 STAR stories with TV angle under 90 seconds each</label>
+          <label><input type="checkbox"> Honest WebGL/TV gap answer practiced</label>
+          <label><input type="checkbox"> At least one lab pushed to GitHub with README</label>
+          <label><input type="checkbox"> Questions prepared for them (stack, devices, perf budgets, team split)</label>
+        </div>
+
+        <div class="card">
+          <h3>Questions to ask the consultancy</h3>
+          <ul>
+            <li>Which TV platforms (Tizen, webOS, Android TV) and target devices?</li>
+            <li>Current stack split: Lightning V3 vs SolidJS vs Blits?</li>
+            <li>Typical memory/CPU budget and FPS target per device tier?</li>
+            <li>How is performance regression tested (CI benchmarks, on-device labs)?</li>
+            <li>Which surfaces are highest priority: Home, Live, EPG?</li>
+            <li>Team structure across Vietnam and global engineering?</li>
+          </ul>
+        </div>
+      </section>
+
+      <footer>
+        Folder: <code>personal/cv/webgl-tv-performance/</code> ·
+        CV: <a href="./phong-trieu-ngo-cv.html">phong-trieu-ngo-cv.html</a> ·
+        Baseline: <a href="../phong-trieu-ngo-cv.html">../phong-trieu-ngo-cv.html</a>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

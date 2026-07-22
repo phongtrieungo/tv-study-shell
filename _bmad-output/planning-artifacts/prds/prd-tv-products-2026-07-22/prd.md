@@ -1,0 +1,253 @@
+---
+title: TV Study Shell
+status: final
+created: 2026-07-22
+updated: 2026-07-22
+---
+
+# PRD: TV Study Shell
+
+## 0. Document Purpose
+
+This PRD defines **TV Study Shell**, a portfolio learning product for Ngotrieuphong to gain hands-on Smart TV frontend experience (Canvas/WebGL concepts, Lightning 3 / Blits, SolidJS, Home / Live / EPG patterns). It is for the builder and for downstream architecture/epics/dev workflows. It builds on:
+
+- `interview-study-plan.html`
+- `_bmad-output/forge/tv-study-shell/forged-idea.md`
+- Technical + domain research under `_bmad-output/planning-artifacts/research/`
+
+No separate UX spec exists; TV UX constraints are taken from domain research and inlined in journeys / NFRs. `[ASSUMPTION]` tags mark Fast-path inferences from the approved plan.
+
+## 1. Vision
+
+TV Study Shell is a **single runnable monorepo** that feels like a miniature TV app: a learner navigates with a D-pad (keyboard proxy) across **Home**, **Live**, and **EPG** surfaces. Each surface uses a different rendering/reactivity approach that maps to the target interview stack — so study time produces **evidence** (code + FPS/heap notes), not only notes.
+
+The product exists to close the gap between strong TypeScript / large-app experience and the JD gaps: WebGL/canvas thinking, Lightning/Blits, SolidJS, and Smart TV constraints. Success is an interview-ready GitHub story: honest about desktop proxies, rigorous about virtualization, focus, and memory.
+
+## 2. Target User
+
+### 2.1 Jobs To Be Done
+
+- **Functional:** Practice virtualized EPG, focusable Home rails, and signal-driven Live updates under TV-like constraints.
+- **Career:** Produce a portfolio artifact that supports Senior FE WebGL / TV Performance interviews without overclaiming.
+- **Learning:** Build transferable mental models (DOM vs Canvas vs WebGL; VDOM vs signals; texture lifecycle).
+- **Emotional:** Replace “I only read the docs” anxiety with “I can demo and explain what I measured.”
+
+### 2.2 Non-Users (v1)
+
+- End consumers looking for a real streaming service.
+- Teams needing store-certified Tizen/webOS packages.
+- Learners wanting a React TV tutorial.
+
+### 2.3 Key User Journeys
+
+- **UJ-1. Phong ships and demos a virtualized EPG.**
+  - **Persona + context:** Phong, senior TS engineer new to TV stacks, preparing for consultancy interviews.
+  - **Entry state:** Shell running in desktop Chromium; keyboard mapped as D-pad.
+  - **Path:** Open EPG → move focus across channels/time with arrows → scroll large grid → open README metrics section.
+  - **Climax:** He can state how many cells exist vs how many are drawn, and show FPS/heap notes.
+  - **Resolution:** Confidence to answer “How would you optimize an EPG?” with a live demo.
+  - **Edge case:** Fast held-key navigation does not freeze the UI or unbounded-grow memory.
+
+- **UJ-2. Phong demos Home rails on Blits/Lightning.**
+  - **Entry state:** From shell, enter Home.
+  - **Path:** Focus moves along a horizontal poster rail → adjacent posters lazy-load → leave Home.
+  - **Climax:** Focus feels immediate; textures unload/cleanup on leave (documented).
+  - **Resolution:** Can explain scene graph + focus vs DOM SPA.
+
+- **UJ-3. Phong shows Solid Live strip updates without full rerender.**
+  - **Path:** Open Live surface → “now playing” / clock badge updates every second.
+  - **Climax:** Explains signals vs React VDOM using the running strip.
+  - **Resolution:** JD SolidJS line covered honestly.
+
+- **UJ-4. Phong runs a memory soak and records the result.**
+  - **Path:** Navigate between surfaces for 30 minutes → heap snapshot diff → fix any leak → re-measure.
+  - **Climax:** Written soak report in repo.
+  - **Resolution:** MVP complete.
+
+## 3. Glossary
+
+- **TV Study Shell (Shell)** — The overall monorepo app that routes between Surfaces.
+- **Surface** — A primary full-screen experience: Home, Live, or EPG.
+- **Home** — Horizontal rails of focusable poster tiles (catalog browsing pattern).
+- **Live** — Surface featuring a Live Strip of frequently updating “now” metadata (video playback mocked).
+- **Live Strip** — Signal-driven UI strip showing now-playing / clock-like updates.
+- **EPG** — Electronic Program Guide: 2D channel × time Program Grid.
+- **Program Grid** — Virtualized EPG cells for channels and time slots.
+- **Visible Window** — Subset of channels and time range currently drawn.
+- **D-pad** — Directional navigation input (arrow keys as proxy).
+- **Focus** — The single primary interactive element receiving remote/keyboard input.
+- **Safe Zone** — Margin inset simulating TV overscan (visual guide in shell chrome).
+- **Texture** — GPU/image resource for posters in Home (Blits/Lightning).
+- **Memory Soak** — Extended session test comparing heap before/after navigation.
+- **Mock Data** — Synthetic JSON channels, programs, and rails (no production backend).
+- **Perf Note** — Documented FPS, draw counts, or heap measurements labeled with environment.
+
+## 4. Features
+
+### 4.1 App Shell & Navigation
+
+**Description:** Thin Shell chrome with Safe Zone guide, Surface switcher, and shared D-pad help. Realizes UJ-1–UJ-4. `[ASSUMPTION: desktop-first; no platform launcher integration]`
+
+**Functional Requirements:**
+
+#### FR-1: Launch Shell
+
+Learner can open the Shell in a browser and see a navigable entry screen listing Surfaces.
+
+**Consequences (testable):**
+
+- `npm`/`pnpm` install + documented start command launches without manual build ritual beyond README.
+- Entry UI shows Home, Live, and EPG as destinations.
+
+#### FR-2: Switch Surfaces
+
+Learner can move between Home, Live, and EPG via D-pad/keyboard and return with Back.
+
+**Consequences (testable):**
+
+- Focus restores to a predictable place when re-entering a Surface.
+- Leaving a Surface triggers documented cleanup hooks (listeners/textures).
+
+#### FR-3: Safe Zone & 10-foot chrome
+
+Shell displays a Safe Zone inset and large-enough chrome typography for lean-back readability on a desktop mock.
+
+### 4.2 EPG (Canvas) Surface
+
+**Description:** Canvas 2D Program Grid with Visible Window virtualization and D-pad Focus. Realizes UJ-1.
+
+#### FR-4: Virtualized Program Grid
+
+Learner can browse ≥50 channels × ≥24h of Mock Data while only Visible Window cells are drawn each frame.
+
+**Consequences (testable):**
+
+- Draw/cell accounting is exposed in a debug overlay or Perf Note.
+- Scrolling changes the Visible Window without instantiating full DOM cell forests.
+
+#### FR-5: EPG D-pad Focus
+
+Learner can move Focus across channels (vertical) and time (horizontal) with arrow keys; Enter selects a program detail (minimal panel OK).
+
+#### FR-6: Now-line
+
+Program Grid shows a distinct now-line indicator updated independently from full grid rebuilds.
+
+#### FR-7: EPG Perf Note
+
+Repo includes a Perf Note for EPG (FPS and/or draw counts) measured on a named browser/OS.
+
+### 4.3 Home (Blits / Lightning) Surface
+
+**Description:** At least one horizontal Home rail of focusable posters using Blits on Lightning 3 Renderer. Realizes UJ-2.
+
+#### FR-8: Focusable Home Rail
+
+Learner can move Focus left/right along a rail of ≥12 poster tiles with visible focus affordance.
+
+#### FR-9: Lazy Texture Loading
+
+Off-screen or far tiles do not keep full-resolution Textures loaded indefinitely; leaving Home releases resources (documented approach).
+
+#### FR-10: Home Perf Note
+
+Repo includes a short Perf Note covering focus scroll smoothness and cleanup behavior.
+
+### 4.4 Live (SolidJS) Surface
+
+**Description:** SolidJS Live Strip demonstrating fine-grained updates. Realizes UJ-3. Video is mocked (poster/color field).
+
+#### FR-11: Live Strip Signal Updates
+
+Learner sees now-playing text and/or clock update at least once per second without remounting the whole Surface tree.
+
+#### FR-12: Solid vs VDOM talking point
+
+README explains how the Live Strip update model differs from React-style rerender (learner-authored, accurate).
+
+### 4.5 Memory Soak & Portfolio Packaging
+
+**Description:** Lab D + portfolio README. Realizes UJ-4.
+
+#### FR-13: Memory Soak Procedure
+
+Repo documents a 30-minute soak procedure and records at least one before/after heap comparison (or explicit “no growth” result) for Shell navigation across Surfaces.
+
+#### FR-14: Portfolio README
+
+Root README states stack map, how to run, honesty about desktop proxy, and links to Perf Notes.
+
+**Feature-specific NFRs:**
+
+- Perf Notes must label environment (browser, machine class).
+
+## 5. Non-Goals (Explicit)
+
+- Real streaming playback, DRM, CAS, or tuner integration.
+- Store packaging for Tizen / webOS / Android TV.
+- React (or React Native) implementation path.
+- Full multi-day EPG editor / CMS.
+- Pixel-perfect clone of Samsung/LG launcher.
+- Claiming production Lightning employment history via this repo alone.
+- Accessibility certification for TV platforms (basic focus visibility is required; full a11y suite is not).
+
+## 6. MVP Scope
+
+### 6.1 In Scope
+
+- Shell with three Surfaces (FR-1–FR-3).
+- Canvas EPG virtualization + D-pad + now-line + Perf Note (FR-4–FR-7).
+- Blits Home rail + lazy textures + Perf Note (FR-8–FR-10).
+- Solid Live Strip + README explanation (FR-11–FR-12).
+- Memory Soak doc + portfolio README (FR-13–FR-14).
+
+### 6.2 Out of Scope for MVP
+
+- Second Home rail / personalization. `[NOTE FOR PM: nice interview polish later]`
+- WebGL rewrite of EPG (document as future comparison only).
+- SolidTV migration.
+- On-device CI farms.
+- Backend APIs.
+
+## 7. Success Metrics
+
+| Metric | Target |
+| --- | --- |
+| Surfaces runnable | 3/3 from README scripts |
+| EPG virtualization evidence | Visible Window draw count ≪ total logical cells |
+| Memory Soak | No unbounded heap growth over 30 min (or leak fixed + retested) |
+| Interview readiness | Builder can demo UJ-1–UJ-3 in ≤10 minutes |
+| Honesty | README states desktop proxy + learning purpose |
+
+**Counter-metrics (avoid gaming):**
+
+- Lines of code / number of frameworks without demos.
+- “60 FPS” claims without measurement environment.
+
+## 8. Assumptions Index
+
+- `[ASSUMPTION]` Desktop Chromium + keyboard is the primary runtime for v1.
+- `[ASSUMPTION]` One Home rail is enough for Lightning/Blits learning proof.
+- `[ASSUMPTION]` Mock video (static) is acceptable for Live.
+- `[ASSUMPTION]` pnpm or npm workspaces + Vite is the bundling approach (architecture may pin).
+- `[ASSUMPTION]` No UX designer artifact required beyond domain research glossary.
+
+## 9. Open Questions
+
+- Prefer pnpm vs npm workspaces? → defer to architecture with Vite monorepo default.
+- Exact Blits package version pin at scaffold time.
+- Whether Shell chrome is DOM or also Blits — prefer thin DOM shell hosting iframes/packages unless architecture chooses otherwise.
+
+## 10. Risks
+
+| Risk | Mitigation |
+| --- | --- |
+| Framework sprawl | Hard package boundaries; thin Shell |
+| Blits ramp delay | Official `npm create @lightningjs/app` starter |
+| Incomplete soak | MVP gate includes FR-13 |
+| Overclaiming | FR-14 honesty section |
+
+---
+
+**Status:** final (Fast path; plan-approved scope)  
+**Next:** Architecture spine → Epics & Stories

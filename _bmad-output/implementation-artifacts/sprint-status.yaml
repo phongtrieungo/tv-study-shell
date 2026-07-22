@@ -1,0 +1,47 @@
+# generated: 2026-07-22
+# project: tv-products
+# project_key: TVSHELL
+# tracking_system: file-system
+# story_location: "{project-root}/_bmad-output/implementation-artifacts"
+
+generated: 2026-07-22
+last_updated: 2026-07-22
+project: tv-products
+project_key: TVSHELL
+tracking_system: file-system
+story_location: "_bmad-output/implementation-artifacts"
+
+development_status:
+  epic-1: backlog
+  1-1-scaffold-monorepo-and-shell-app: backlog
+  1-2-shared-fixtures-and-dpad-key-map: backlog
+  1-3-safe-zone-shell-chrome-and-surface-menu: backlog
+  1-4-surface-host-mount-unmount-contract: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-epg-canvas-visible-window-math: backlog
+  2-2-epg-dpad-focus-and-program-select: backlog
+  2-3-epg-now-line-indicator: backlog
+  2-4-epg-perf-note: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-spike-blits-mount-strategy: backlog
+  3-2-focusable-horizontal-home-rail: backlog
+  3-3-lazy-texture-load-and-unload: backlog
+  3-4-home-perf-note: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-live-strip-with-signals: backlog
+  4-2-solid-vs-vdom-readme-section: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-cross-surface-navigation-hardening: backlog
+  5-2-memory-soak-procedure-and-report: backlog
+  5-3-portfolio-readme-finalization: backlog
+  epic-5-retrospective: optional
+
+action_items: []

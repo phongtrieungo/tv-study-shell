@@ -1,0 +1,87 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Package manager lock noise (keep lockfiles; ignore caches)
+.npm/
+.pnpm-store/
+
+# Build / output
+dist/
+build/
+out/
+.turbo/
+.vite/
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.output/
+
+# Lightning / Blits / bundler artifacts
+*.map
+!docs/**/*.map
+
+# Test / coverage
+coverage/
+.nyc_output/
+*.lcov
+playwright-report/
+test-results/
+.vitest/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+credentials.json
+secrets/
+
+# Logs & debug
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Editors / IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.swp
+*.swo
+*~
+
+# Local agent / tooling scratch
+.cursor/
+!.cursor/rules/
+.claude/settings.local.json
+*.local.md
+
+# Optional: heap/perf dumps from Lab D soaks (keep committed reports as .md)
+*.heapsnapshot
+*.cpuprofile
+*.trace.json
