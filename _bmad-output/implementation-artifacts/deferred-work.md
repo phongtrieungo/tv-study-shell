@@ -1,10 +1,14 @@
 # Deferred Work
 
+## Deferred from: code review of 1-4-surface-host-mount-unmount-contract.md (2026-07-22)
+
+- Lifecycle timeout if mount/unmount Promise never settles — add when real Surfaces use async mount; current stub is sync. Epic 6 / later host hardening.
+
 ## Deferred from: code review of 1-3-safe-zone-shell-chrome-and-surface-menu.md (2026-07-22)
 
-- No reserved Surface host / error-banner DOM slot in shell chrome — add when implementing Story 1.4 mount/unmount.
+- ~~No reserved Surface host / error-banner DOM slot in shell chrome — add when implementing Story 1.4 mount/unmount.~~ **Resolved in Story 1.4.**
 - No unit tests for menu focus state machine (`move` / clamp / select / back) — cover under Story 7.1 Vitest.
-- User-visible “Story 1.4” deferral copy in shell status/subtitle — scrub when mount contract ships.
+- ~~User-visible “Story 1.4” deferral copy in shell status/subtitle — scrub when mount contract ships.~~ **Resolved in Story 1.4.**
 
 ## Deferred from: code review of 1-2-shared-fixtures-and-dpad-key-map.md (2026-07-22)
 

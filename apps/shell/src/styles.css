@@ -151,3 +151,63 @@ body {
   font-size: 0.95rem;
   color: var(--muted);
 }
+
+.shell-error-banner {
+  padding: 1rem 1.25rem;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: #fecaca;
+  background: rgba(127, 29, 29, 0.55);
+  border: 1px solid #f87171;
+  border-radius: 8px;
+  max-width: 42rem;
+}
+
+.shell-error-banner strong {
+  color: #fee2e2;
+  font-weight: 600;
+}
+
+.surface-host {
+  flex: 1;
+  min-height: 12rem;
+  max-width: 42rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-inner);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+}
+
+.surface-host:not([hidden]) {
+  display: block;
+}
+
+.surface-host:focus {
+  outline: none;
+}
+
+.surface-host:focus-visible {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35);
+}
+
+.surface-stub h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+}
+
+.surface-stub p {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.surface-stub__probe {
+  color: var(--accent) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.95rem !important;
+}
+
+.shell-root.is-surface-active .shell-header p {
+  color: var(--accent);
+}

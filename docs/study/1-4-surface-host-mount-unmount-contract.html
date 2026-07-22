@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 1.4 Study Guide: Surface Host Mount/Unmount Contract</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 1.4</p>
+        <h1>Surface host mount/unmount contract</h1>
+        <p>
+          This story teaches the Thin DOM Shell’s lifecycle API: Surfaces
+          <strong>mount</strong> into a host element and <strong>unmount</strong> must dispose what they
+          created (AD-2 / AD-6). A stub package proves cleanup before real Labs arrive.
+        </p>
+      </header>
+
+      <section>
+        <h2>Why this story matters</h2>
+        <p>
+          TV apps navigate between heavy Surfaces (Canvas, WebGL, Blits, Solid). If leave only hides DOM
+          and leaves timers, RAF loops, listeners, or GPU textures alive, heap and GPU memory grow across
+          route changes. Interviewers ask who owns cleanup — the answer is a documented contract.
+        </p>
+        <ul>
+          <li><strong>FR-2 / AD-2:</strong> Shell hosts Surfaces and calls <code>mount</code> / <code>unmount</code>.</li>
+          <li><strong>AD-6:</strong> Every unmount disposes listeners, timers, RAF, textures/images the Surface created.</li>
+          <li><strong>Interview value:</strong> you can whiteboard ownership without claiming a full Memory Soak yet.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Thin Shell vs Surface ownership</h2>
+        <p>
+          The Shell is Vite + TypeScript DOM. It owns navigation chrome, the host element, and the enter/leave
+          calls. The Surface owns its runtime and resources. Shell does not import Blits/Solid/WebGL into chrome.
+        </p>
+        <pre><code>menu → select → host.enter(id) → module.mount(hostEl)
+surface Back → host.leave() → module.unmount() → menu</code></pre>
+        <p>
+          Why not “just swap <code>innerHTML</code>”? Swapping DOM does not cancel <code>setInterval</code>, remove
+          <code>addEventListener</code>, stop RAF, or delete WebGL buffers. Explicit unmount is the teaching surface.
+        </p>
+      </section>
+
+      <section>
+        <h2>AD-6 cleanup checklist</h2>
+        <p>On leave, a Surface should dispose everything it created:</p>
+        <ul>
+          <li>DOM event listeners (<code>removeEventListener</code>)</li>
+          <li>Timers (<code>clearInterval</code> / <code>clearTimeout</code>)</li>
+          <li>RAF loops (<code>cancelAnimationFrame</code>)</li>
+          <li>Textures / images / GPU buffers &amp; programs (later Labs)</li>
+        </ul>
+        <p>
+          Story 1.4 proves the contract with <code>@tvshell/surface-stub</code>: a visibility listener + interval
+          are registered on mount and cleared on unmount. Probe:
+          <code>hasActiveSideEffects()</code> should be <code>false</code> after Back.
+        </p>
+      </section>
+
+      <section>
+        <h2>Error banner honesty</h2>
+        <p>
+          Architecture convention: mount failures show a Shell-level error banner — no silent blank screens.
+          The host catches throw/reject, clears a half-mounted host element, and surfaces the message.
+        </p>
+      </section>
+
+      <section>
+        <h2>Stub vs real Surfaces</h2>
+        <p>
+          All four menu destinations currently resolve to the same stub via a registry. Later epics swap
+          entries to <code>epg-canvas</code>, <code>webgl-lab</code>, <code>home-blits</code>, and
+          <code>live-solid</code> without rewriting Shell chrome.
+        </p>
+        <p>
+          <strong>Story 4.1</strong> may adjust Blits mount details (iframe vs in-page). Keep the host API
+          generic: mount into an element (or dedicated route root) — do not hard-code iframe now.
+        </p>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Stub cleanup ≠ Memory Soak (Story 6.2). Soak validates AD-6 across real Surfaces for ~30 minutes.</li>
+          <li>Desktop Chromium + keyboard is still a proxy, not OEM TV memory truth.</li>
+          <li>Select now means mount (unlike Story 1.3). Real Lab behavior arrives in Epics 2–5.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ol>
+          <li>
+            <strong>Who calls mount/unmount?</strong>
+            Thin DOM Shell on enter/leave; Surface implements the pair.
+          </li>
+          <li>
+            <strong>What must unmount dispose?</strong>
+            Listeners, timers, RAF, textures/images — whatever that Surface created.
+          </li>
+          <li>
+            <strong>How do you prove it today?</strong>
+            Stub registers a listener + timer; after Back, <code>hasActiveSideEffects()</code> is false.
+          </li>
+          <li>
+            <strong>What is still deferred?</strong>
+            Real Labs, Blits mount strategy (4.1), cross-surface focus hardening (6.1), Memory Soak (6.2).
+          </li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

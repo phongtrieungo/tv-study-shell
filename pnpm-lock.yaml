@@ -13,6 +13,9 @@ importers:
       '@tvshell/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@tvshell/surface-stub':
+        specifier: workspace:*
+        version: link:../../packages/surface-stub
     devDependencies:
       typescript:
         specifier: 5.9.3
@@ -22,6 +25,12 @@ importers:
         version: 6.4.3
 
   packages/shared:
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/surface-stub:
     devDependencies:
       typescript:
         specifier: 5.9.3

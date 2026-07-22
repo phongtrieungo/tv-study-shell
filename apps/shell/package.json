@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@tvshell/shared": "workspace:*"
+    "@tvshell/shared": "workspace:*",
+    "@tvshell/surface-stub": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.3",
