@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Monorepo scaffold live (`apps/shell` + `packages/shared`). Surfaces and D-pad chrome come next — see [docs/index.md](docs/index.md).  
+> **Status:** Shell shows Safe Zone chrome + a focusable Surface menu (`apps/shell` + `packages/shared`). Surface mount/unmount is next — see [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -71,9 +71,9 @@ pnpm dev
 # equivalent: pnpm --filter shell dev
 ```
 
-Shell serves at `http://localhost:5180`. You should see shared fixture counts from `@tvshell/shared` (proves the workspace package resolves and Story 1.2 fixtures are available).
+Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Arrow keys as D-pad, Enter to select, and Backspace / Escape for Back now exist in `@tvshell/shared`; menu / Safe Zone behavior still lands in later Epic 1 stories.
+Use arrow keys as D-pad and Enter to select (shared map in `@tvshell/shared`). Select currently **acknowledges** the destination in the status line — the Surface host `mount` / `unmount` contract lands in Story **1.4**.
 
 ## Testing (UT / E2E / Emulator)
 

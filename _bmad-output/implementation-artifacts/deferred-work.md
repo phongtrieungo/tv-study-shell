@@ -1,5 +1,11 @@
 # Deferred Work
 
+## Deferred from: code review of 1-3-safe-zone-shell-chrome-and-surface-menu.md (2026-07-22)
+
+- No reserved Surface host / error-banner DOM slot in shell chrome — add when implementing Story 1.4 mount/unmount.
+- No unit tests for menu focus state machine (`move` / clamp / select / back) — cover under Story 7.1 Vitest.
+- User-visible “Story 1.4” deferral copy in shell status/subtitle — scrub when mount contract ships.
+
 ## Deferred from: code review of 1-2-shared-fixtures-and-dpad-key-map.md (2026-07-22)
 
 - Smoke test imports compiled internal modules (`fixtures/index.js`, `input/index.js`) instead of the public `@tvshell/shared` barrel — strengthen in Story 7.1 Vitest coverage.

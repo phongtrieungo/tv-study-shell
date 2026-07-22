@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 1.3 Study Guide: Safe Zone Shell Chrome and Surface Menu</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 1.3</p>
+        <h1>Safe Zone shell chrome and Surface menu</h1>
+        <p>
+          This story teaches the TV-shaped shell contract: keep critical UI inside a
+          <strong>Safe Zone</strong>, expose one visible <strong>Focus</strong>, and let the thin DOM
+          Shell own destination switching before Surfaces bring their own renderers.
+        </p>
+      </header>
+
+      <section>
+        <h2>Why this story matters</h2>
+        <p>
+          TV hardware may crop screen edges (overscan). Portfolio work that looks fine flush to a browser
+          window can fail the “this feels like TV” interview bar. Story 1.3 makes Safe Zone and a
+          focusable Surface menu visible in the Shell before any Surface package exists.
+        </p>
+        <ul>
+          <li><strong>FR-3 / AD-2:</strong> Thin DOM Shell owns chrome and navigation chrome.</li>
+          <li><strong>FR-1:</strong> Entry screen lists Home, Live, EPG, and WebGL Lab.</li>
+          <li><strong>Interview value:</strong> you can explain overscan, focus ownership, and why Shell ≠ Surface runtime.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Overscan vs Safe Zone</h2>
+        <p>
+          <strong>Overscan</strong> is manufacturer-dependent cropping around the displayable area.
+          <strong>Safe Zone</strong> is the inner region where critical UI should live so text and focus
+          rings are not clipped.
+        </p>
+        <ul>
+          <li>Common convention: ~<strong>5% margin per edge</strong> (inner ~90%).</li>
+          <li>At 1920×1080 that is roughly <strong>48px</strong> horizontal and <strong>27px</strong> vertical.</li>
+          <li>Backgrounds may bleed to the edge; focused items and labels should not.</li>
+        </ul>
+        <p>
+          In this repo the Safe Zone is intentionally <em>visible</em> (dashed guide + label) so the
+          teaching overlay is obvious on a desktop mock. Invisible padding alone would not prove the concept.
+        </p>
+      </section>
+
+      <section>
+        <h2>Thin DOM Shell vs Surface renderers</h2>
+        <p>
+          The Shell is Vite + TypeScript DOM. Surfaces later bring Canvas, raw WebGL, Blits, or Solid.
+          The Shell must not become a React/Solid app “for convenience.”
+        </p>
+        <pre><code>menu (Shell) → select → host.mount(surface)   // Story 1.4+
+surface root Back → menu                      // AD-4 loop later</code></pre>
+        <p>
+          Story 1.3 stops at menu + acknowledge. <strong>Select ≠ mount.</strong> Saying “I selected WebGL Lab”
+          in the status line is honest; inventing a fake mount API here would steal Story 1.4.
+        </p>
+      </section>
+
+      <section>
+        <h2>Single visible Focus + shared D-pad</h2>
+        <p>
+          TV UIs have one primary focused element. The menu consumes <code>getDpadAction</code> from
+          <code>@tvshell/shared</code> so Arrow keys / Enter / Back stay aligned with later Surfaces and Playwright.
+        </p>
+        <pre><code>const action = getDpadAction(event);
+// up/down → move focus index
+// select → acknowledge SurfaceId
+// back → stay on menu (until Surfaces exist)</code></pre>
+        <p>
+          Prefer an explicit focus index + high-contrast <code>.is-focused</code> style (10-foot readability)
+          rather than hoping default browser focus looks TV-ready.
+        </p>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop Chromium + keyboard is a proxy, not a certified Tizen/webOS remote.</li>
+          <li>5% Safe Zone is a portfolio convention, not a measured guarantee on every TV.</li>
+          <li>Four destinations are labeled now; packages for those Surfaces arrive in later epics.</li>
+          <li>Mount/unmount cleanup and Back-from-Surface are intentionally deferred to Story 1.4+.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ol>
+          <li>
+            <strong>What is Safe Zone?</strong>
+            Keep critical UI inside ~5% insets so overscan does not crop focus and text.
+          </li>
+          <li>
+            <strong>Why visible guide?</strong>
+            On a desktop mock, a teaching overlay proves the inset exists; padding alone is easy to miss.
+          </li>
+          <li>
+            <strong>Why thin DOM Shell?</strong>
+            Navigation chrome should not import Canvas/WebGL/Blits/Solid runtimes.
+          </li>
+          <li>
+            <strong>What is deferred?</strong>
+            Real Surface mount/unmount, OEM remote codes, and visual polish beyond Safe Zone.
+          </li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

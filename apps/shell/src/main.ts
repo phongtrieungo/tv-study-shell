@@ -1,27 +1,86 @@
-import {
-  DPAD_KEYS,
-  SHARED_MARKER,
-  channels,
-  fixtureMeta,
-  homeRails,
-  programs,
-} from '@tvshell/shared';
+import { getDpadAction } from '@tvshell/shared';
+import { renderChrome } from './chrome/render-chrome.js';
+import { createMenuFocusController } from './menu/focus-menu.js';
+import { renderSurfaceMenu, surfaceIdFromElement } from './menu/render-menu.js';
+import { SURFACE_MENU, type SurfaceId } from './menu/surfaces.js';
+import './styles.css';
 
 const root = document.querySelector('#app');
-if (!root) {
+if (!(root instanceof HTMLElement)) {
   throw new Error('[shell] #app missing');
 }
 
-const [featuredRail] = homeRails;
+const chrome = renderChrome(root);
+const menu = renderSurfaceMenu(chrome.menuHost);
 
-root.textContent =
-  `TV Study Shell — ${SHARED_MARKER} | ` +
-  `${channels.length} channels | ` +
-  `${programs.length} programs | ` +
-  `${featuredRail?.items.length ?? 0} featured tiles`;
+const acknowledgeSelect = (id: SurfaceId) => {
+  const item = SURFACE_MENU.find((entry) => entry.id === id);
+  const label = item?.label ?? id;
+  chrome.setStatus(
+    `Selected ${label} (${id}). Mount/unmount host contract is Story 1.4 — not mounted yet.`,
+  );
+  console.info('[shell] surface selected', { id, label });
+};
 
-console.info('[shell] mounted with shared fixtures', {
-  marker: SHARED_MARKER,
-  fixtureMeta,
-  dpadKeys: DPAD_KEYS,
+const focus = createMenuFocusController({
+  onFocusChange: (index) => {
+    menu.setFocusedIndex(index);
+  },
+  onSelect: acknowledgeSelect,
+  onBack: () => {
+    chrome.setStatus('Back on menu — staying here until Surfaces mount (Story 1.4).');
+    console.info('[shell] back on menu (no-op)');
+  },
+});
+
+const listenerAbort = new AbortController();
+const { signal } = listenerAbort;
+
+window.addEventListener(
+  'keydown',
+  (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) {
+      return;
+    }
+
+    const action = getDpadAction(event);
+    if (!action) {
+      return;
+    }
+
+    event.preventDefault();
+    focus.handleAction(action);
+  },
+  { signal },
+);
+
+menu.list.addEventListener(
+  'click',
+  (event) => {
+    const id = surfaceIdFromElement(event.target);
+    if (!id) {
+      return;
+    }
+
+    const index = SURFACE_MENU.findIndex((item) => item.id === id);
+    if (index < 0) {
+      return;
+    }
+
+    // Click is a desktop convenience; D-pad remains the primary input path.
+    focus.setIndex(index);
+    focus.handleAction('select');
+  },
+  { signal },
+);
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    listenerAbort.abort();
+  });
+}
+
+console.info('[shell] chrome ready', {
+  surfaces: SURFACE_MENU.map((item) => item.id),
+  focused: focus.getFocusedId(),
 });
