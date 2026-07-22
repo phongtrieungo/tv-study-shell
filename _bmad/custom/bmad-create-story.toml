@@ -1,0 +1,10 @@
+# DO NOT EDIT the skill-shipped customize.toml — team overrides live here.
+# Merged by resolve_customization.py (arrays append; scalars override).
+
+[workflow]
+
+persistent_facts = [
+  "file:{project-root}/docs/study-guides.md",
+  "From Story 1.2 forward, every story file MUST include a task/AC for a practical interview study HTML under docs/study/{story-key}.html (Story 1.1 scaffold is exempt).",
+  "Study HTML must teach interview-ready concepts from the story implementation, not merely list files changed.",
+]

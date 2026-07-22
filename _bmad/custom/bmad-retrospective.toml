@@ -1,0 +1,9 @@
+# DO NOT EDIT the skill-shipped customize.toml — team overrides live here.
+# Merged by resolve_customization.py (arrays append; scalars override).
+
+[workflow]
+
+persistent_facts = [
+  "file:{project-root}/docs/study-guides.md",
+  "When closing an epic, create docs/study/epic-{N}-{slug}.html that connects all stories in the epic into a start-to-end big picture, and link it from docs/index.md.",
+]
