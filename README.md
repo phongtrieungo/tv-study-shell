@@ -71,9 +71,9 @@ pnpm dev
 # equivalent: pnpm --filter shell dev
 ```
 
-Shell serves at `http://localhost:5180`. You should see `TV Study Shell — @tvshell/shared` (proves the workspace package resolves).
+Shell serves at `http://localhost:5180`. You should see shared fixture counts from `@tvshell/shared` (proves the workspace package resolves and Story 1.2 fixtures are available).
 
-Arrow keys as D-pad, Enter to select, Backspace / Escape for Back land in later Epic 1 stories (menu / Safe Zone).
+Arrow keys as D-pad, Enter to select, and Backspace / Escape for Back now exist in `@tvshell/shared`; menu / Safe Zone behavior still lands in later Epic 1 stories.
 
 ## Testing (UT / E2E / Emulator)
 

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 1.2 Study Guide: Shared Fixtures and D-pad Key Map</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 1.2</p>
+        <h1>Shared fixtures and D-pad key map</h1>
+        <p>
+          This story teaches the interview-important split between <strong>app vocabulary</strong> and
+          <strong>surface behavior</strong>: every surface should consume the same channels, programs, rails,
+          and D-pad semantics before UI-specific focus logic exists.
+        </p>
+      </header>
+
+      <section>
+        <h2>Why this story matters</h2>
+        <p>
+          Smart TV surfaces break down quickly if each surface invents its own data shape or key handling.
+          Story 1.2 centralizes those contracts inside <code>@tvshell/shared</code> so the shell, EPG,
+          Home rail, and future tests all speak the same language.
+        </p>
+        <ul>
+          <li><strong>AD-3:</strong> Mock Data is the only data plane in v1.</li>
+          <li><strong>AD-4:</strong> D-pad key mapping is shared and stable across surfaces.</li>
+          <li><strong>Interview value:</strong> you can explain how shared contracts reduce drift before complex rendering work starts.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Shared fixtures mental model</h2>
+        <p>
+          The fixtures are not random demo blobs. They model the minimum data integrity that later stories need:
+        </p>
+        <ul>
+          <li><code>channels</code> provide stable row identities for the EPG.</li>
+          <li><code>programs</code> cover a full 24-hour schedule with deterministic ISO timestamps.</li>
+          <li><code>homeRails</code> provide the shared poster vocabulary for Blits Home later.</li>
+        </ul>
+        <p>
+          In interviews, the key point is not “I had 50 channels.” The key point is “I designed fixtures that make
+          virtualization math and focus behavior possible without a backend.”
+        </p>
+        <pre><code>type Channel = { channelId: string; name: string; number: number };
+type Program = {
+  programId: string;
+  channelId: string;
+  title: string;
+  start: string; // ISO-8601
+  end: string;   // ISO-8601
+};
+type Rail = { railId: string; title: string; items: RailItem[] };</code></pre>
+      </section>
+
+      <section>
+        <h2>D-pad mapping: use <code>KeyboardEvent.key</code>, not <code>keyCode</code></h2>
+        <p>
+          Desktop Chromium is the deliberate TV proxy in this repo. That means the shared map should be built around
+          current web-standard key strings:
+        </p>
+        <ul>
+          <li><code>ArrowUp</code>, <code>ArrowDown</code>, <code>ArrowLeft</code>, <code>ArrowRight</code></li>
+          <li><code>Enter</code> for Select</li>
+          <li><code>Backspace</code> and <code>Escape</code> for Back</li>
+        </ul>
+        <p>
+          The important design choice is the semantic layer: surfaces should depend on <code>up</code>,
+          <code>down</code>, <code>left</code>, <code>right</code>, <code>select</code>, and <code>back</code>,
+          not on raw key strings sprinkled everywhere.
+        </p>
+        <pre><code>function normalizeDpadKey(key: string): DpadAction | null {
+  switch (key) {
+    case 'ArrowUp': return 'up';
+    case 'ArrowDown': return 'down';
+    case 'ArrowLeft': return 'left';
+    case 'ArrowRight': return 'right';
+    case 'Enter': return 'select';
+    case 'Backspace':
+    case 'Escape': return 'back';
+    default: return null;
+  }
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>Determinism and honesty bounds</h2>
+        <ul>
+          <li>Use a fixed schedule anchor instead of <code>Date.now()</code> so smoke checks are repeatable.</li>
+          <li>Use slug IDs such as <code>channel-01</code> and ISO timestamps so later stories can reason about stable references.</li>
+          <li>This is a desktop-keyboard proxy, not a claim that OEM remote edge cases are fully solved.</li>
+          <li>The story intentionally does not implement Safe Zone, focus movement, or menu behavior yet.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ol>
+          <li>
+            <strong>Why centralize fixtures?</strong>
+            Because the EPG, Home, tests, and shell all need the same domain vocabulary before renderer-specific work begins.
+          </li>
+          <li>
+            <strong>Why centralize input?</strong>
+            Because TV bugs often come from inconsistent Back handling and divergent key semantics across surfaces.
+          </li>
+          <li>
+            <strong>Why deterministic data?</strong>
+            Because virtualization math and tests are easier to trust when the dataset is stable.
+          </li>
+          <li>
+            <strong>What is intentionally deferred?</strong>
+            Safe Zone UI, focus graphs, Visible Window math, Playwright smoke, and OEM-specific remote integration.
+          </li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>
