@@ -1,16 +1,20 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22
+Generated: 2026-07-22 · Updated: 2026-07-22 (WebGL Lab promoted to MVP)
 
 ## Product
 
 - **Name:** TV Study Shell
-- **Purpose:** Portfolio monorepo for hands-on Smart TV FE learning (Canvas EPG, Blits/Lightning Home, SolidJS Live)
+- **Purpose:** Portfolio monorepo for hands-on Smart TV FE learning — Canvas EPG, **raw WebGL Lab**, Blits/Lightning Home, SolidJS Live
 
 ## Canonical planning artifacts
 
 | Kind | Path |
 | --- | --- |
+| WebGL investment rationale | [webgl-investment.md](webgl-investment.md) |
+| Testing strategy (UT / E2E / emulator) | [testing-strategy.md](testing-strategy.md) |
+| Agent skills research (stack-related) | [agent-skills-research.md](agent-skills-research.md) |
+| Skills lock (project installs) | `../skills-lock.json` |
 | Forged idea | `../_bmad-output/forge/tv-study-shell/forged-idea.md` |
 | PRD | `../_bmad-output/planning-artifacts/prds/prd-tv-products-2026-07-22/prd.md` |
 | Architecture | `../_bmad-output/planning-artifacts/architecture/architecture-tv-products-2026-07-22/ARCHITECTURE-SPINE.md` |
@@ -23,4 +27,4 @@ Generated: 2026-07-22
 
 ## Next implementation step
 
-Run in a fresh chat: `bmad-create-story` for **1.1 Scaffold monorepo and Shell app** (or `bmad-dev-story` after story file exists).
+Run in a fresh chat: `bmad-create-story` for **1.1 Scaffold monorepo and Shell app** (or `bmad-dev-story` after story file exists). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.

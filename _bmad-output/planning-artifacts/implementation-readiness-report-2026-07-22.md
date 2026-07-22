@@ -69,16 +69,19 @@ Stories include Given/When/Then ACs suitable for `bmad-create-story` / `bmad-dev
 
 ## 6. Final Assessment
 
-### Verdict: **READY for Sprint Planning**
+### Verdict: **READY for Sprint Planning** (updated 2026-07-22)
 
-Planning spine is complete for a hobby/portfolio stakes product. Implementation should start at Epic 1 Story 1.1 via `bmad-sprint-planning` → `bmad-create-story` → `bmad-dev-story`.
+Planning spine includes **raw WebGL Lab as MVP Epic 3** (FR-15–17, AD-9). See `docs/webgl-investment.md`.
+
+Implementation should start at Epic 1 Story 1.1 via `bmad-create-story` → `bmad-dev-story`, then invest extra calendar time on **Epic 3** after Canvas EPG.
 
 ### Residual risks (non-blocking)
 
-1. Blits monorepo mount spike (Story 3.1) may adjust Shell host details — architecture deferred this intentionally.
+1. Blits monorepo mount spike (Story 4.1) may adjust Shell host details — architecture deferred this intentionally.
 2. Desktop-only metrics must stay labeled (AD-8 / FR-14).
-3. No UX designer pass — keep visuals sparse on purpose.
+3. WebGL Lab scope creep into a full engine — constrained by FR-15 textured Visible Window / tiles only.
+4. No UX designer pass — keep visuals sparse on purpose.
 
 ### Recommended next skill
 
-`bmad-sprint-planning` then story cycle starting with **1.1 Scaffold monorepo and Shell app**.
+`bmad-create-story` for **1.1 Scaffold monorepo and Shell app**.

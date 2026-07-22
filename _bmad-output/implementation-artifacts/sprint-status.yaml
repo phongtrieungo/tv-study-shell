@@ -3,6 +3,7 @@
 # project_key: TVSHELL
 # tracking_system: file-system
 # story_location: "{project-root}/_bmad-output/implementation-artifacts"
+# note: Regenerated 2026-07-22 to insert Epic 3 WebGL Lab; Home/Live/Soak renumbered to 4–6
 
 generated: 2026-07-22
 last_updated: 2026-07-22
@@ -27,21 +28,33 @@ development_status:
   epic-2-retrospective: optional
 
   epic-3: backlog
-  3-1-spike-blits-mount-strategy: backlog
-  3-2-focusable-horizontal-home-rail: backlog
-  3-3-lazy-texture-load-and-unload: backlog
-  3-4-home-perf-note: backlog
+  3-1-webgl-lab-textured-visible-window: backlog
+  3-2-canvas-vs-webgl-perf-note: backlog
+  3-3-webgl-vocabulary-readme-section: backlog
   epic-3-retrospective: optional
 
   epic-4: backlog
-  4-1-live-strip-with-signals: backlog
-  4-2-solid-vs-vdom-readme-section: backlog
+  4-1-spike-blits-mount-strategy: backlog
+  4-2-focusable-horizontal-home-rail: backlog
+  4-3-lazy-texture-load-and-unload: backlog
+  4-4-home-perf-note: backlog
   epic-4-retrospective: optional
 
   epic-5: backlog
-  5-1-cross-surface-navigation-hardening: backlog
-  5-2-memory-soak-procedure-and-report: backlog
-  5-3-portfolio-readme-finalization: backlog
+  5-1-live-strip-with-signals: backlog
+  5-2-solid-vs-vdom-readme-section: backlog
   epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-cross-surface-navigation-hardening: backlog
+  6-2-memory-soak-procedure-and-report: backlog
+  6-3-portfolio-readme-finalization: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-vitest-shared-visible-window-and-input: backlog
+  7-2-playwright-dpad-smoke-suite: backlog
+  7-3-tizen-simulator-emulator-dry-run-notes: backlog
+  epic-7-retrospective: optional
 
 action_items: []

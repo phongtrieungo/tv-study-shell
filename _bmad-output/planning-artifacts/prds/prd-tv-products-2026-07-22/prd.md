@@ -3,6 +3,7 @@ title: TV Study Shell
 status: final
 created: 2026-07-22
 updated: 2026-07-22
+changeSignal: Elevate raw WebGL to MVP Lab (FR-15–17); see docs/webgl-investment.md
 ---
 
 # PRD: TV Study Shell
@@ -19,9 +20,9 @@ No separate UX spec exists; TV UX constraints are taken from domain research and
 
 ## 1. Vision
 
-TV Study Shell is a **single runnable monorepo** that feels like a miniature TV app: a learner navigates with a D-pad (keyboard proxy) across **Home**, **Live**, and **EPG** surfaces. Each surface uses a different rendering/reactivity approach that maps to the target interview stack — so study time produces **evidence** (code + FPS/heap notes), not only notes.
+TV Study Shell is a **single runnable monorepo** that feels like a miniature TV app: a learner navigates with a D-pad (keyboard proxy) across **Home**, **Live**, **EPG**, and **WebGL Lab** surfaces. Each surface uses a different rendering/reactivity approach that maps to the target interview stack — so study time produces **evidence** (code + FPS/heap notes), not only notes.
 
-The product exists to close the gap between strong TypeScript / large-app experience and the JD gaps: WebGL/canvas thinking, Lightning/Blits, SolidJS, and Smart TV constraints. Success is an interview-ready GitHub story: honest about desktop proxies, rigorous about virtualization, focus, and memory.
+The product exists to close the gap between strong TypeScript / large-app experience and the JD gaps: **WebGL pipeline literacy**, canvas virtualization, Lightning/Blits, SolidJS, and Smart TV constraints. Success is an interview-ready GitHub story: honest about desktop proxies, rigorous about virtualization, **GPU draw-path vocabulary**, focus, and memory. Canvas alone is not enough for this JD; raw WebGL is an MVP lab, not a postscript.
 
 ## 2. Target User
 
@@ -54,12 +55,20 @@ The product exists to close the gap between strong TypeScript / large-app experi
   - **Climax:** Focus feels immediate; textures unload/cleanup on leave (documented).
   - **Resolution:** Can explain scene graph + focus vs DOM SPA.
 
-- **UJ-3. Phong shows Solid Live strip updates without full rerender.**
+- **UJ-3. Phong demos raw WebGL after Canvas EPG.**
+  - **Persona + context:** Same learner; interviewers probe GPU vs Canvas and draw calls.
+  - **Entry state:** Canvas EPG Visible Window math exists and is understood.
+  - **Path:** Open WebGL Lab → same Visible Window / tile idea rendered via WebGL textures → toggle or compare with Canvas Perf Note.
+  - **Climax:** Explains buffers, textures, simple shader path, and draw-call batching with measured numbers.
+  - **Resolution:** Can answer “Do you know WebGL or only frameworks?” without overclaiming expert depth.
+  - **Edge case:** Context loss / cleanup on leave does not leak GPU resources.
+
+- **UJ-4. Phong shows Solid Live strip updates without full rerender.**
   - **Path:** Open Live surface → “now playing” / clock badge updates every second.
   - **Climax:** Explains signals vs React VDOM using the running strip.
   - **Resolution:** JD SolidJS line covered honestly.
 
-- **UJ-4. Phong runs a memory soak and records the result.**
+- **UJ-5. Phong runs a memory soak and records the result.**
   - **Path:** Navigate between surfaces for 30 minutes → heap snapshot diff → fix any leak → re-measure.
   - **Climax:** Written soak report in repo.
   - **Resolution:** MVP complete.
@@ -77,7 +86,12 @@ The product exists to close the gap between strong TypeScript / large-app experi
 - **D-pad** — Directional navigation input (arrow keys as proxy).
 - **Focus** — The single primary interactive element receiving remote/keyboard input.
 - **Safe Zone** — Margin inset simulating TV overscan (visual guide in shell chrome).
-- **Texture** — GPU/image resource for posters in Home (Blits/Lightning).
+- **Texture** — GPU/image resource for posters in Home (Blits/Lightning) or WebGL Lab.
+- **WebGL Lab** — MVP Surface that renders a Visible Window (or poster/tile grid) with raw WebGL (buffers, textures, shaders, draw calls) for GPU literacy.
+- **Draw Call** — A single GPU submit of geometry; batching reduces overhead.
+- **D-pad Smoke** — Automated Playwright E2E that drives Surfaces with keyboard arrows as a remote proxy.
+- **TV Emulator** — Vendor QEMU/VM-style environment closer to a TV software stack (e.g. Tizen TV Emulator).
+- **TV Simulator** — Lighter vendor tool that simulates TV Web APIs without a full platform image (e.g. Tizen TV Web Simulator, webOS TV Simulator).
 - **Memory Soak** — Extended session test comparing heap before/after navigation.
 - **Mock Data** — Synthetic JSON channels, programs, and rails (no production backend).
 - **Perf Note** — Documented FPS, draw counts, or heap measurements labeled with environment.
@@ -137,9 +151,35 @@ Program Grid shows a distinct now-line indicator updated independently from full
 
 Repo includes a Perf Note for EPG (FPS and/or draw counts) measured on a named browser/OS.
 
-### 4.3 Home (Blits / Lightning) Surface
+### 4.3 WebGL Lab Surface
 
-**Description:** At least one horizontal Home rail of focusable posters using Blits on Lightning 3 Renderer. Realizes UJ-2.
+**Description:** Raw WebGL lab that reuses Visible Window / tile ideas from EPG to teach GPU pipeline vocabulary. Realizes UJ-3. See `docs/webgl-investment.md`. This is **not** a full Blits replacement; it is deliberate metal practice before/alongside Lightning Home.
+
+#### FR-15: WebGL Visible Window / tile grid
+
+Learner can open WebGL Lab and see a navigable (D-pad) textured tile or EPG-window grid rendered with WebGL (not Canvas 2D, not DOM cells).
+
+**Consequences (testable):**
+
+- Uses `WebGLRenderingContext` or `WebGL2RenderingContext`.
+- Uploads at least one texture atlas or per-tile textures and draws the Visible Window only.
+- Shares Visible Window math with EPG via `packages/shared` where practical (or documents intentional duplication).
+
+#### FR-16: Canvas vs WebGL Perf Note
+
+Repo includes a Perf Note comparing Canvas EPG vs WebGL Lab on the same machine (FPS and/or draw-call / CPU-time framing), with environment labeled.
+
+#### FR-17: WebGL vocabulary in README
+
+README (or linked note) explains buffers, textures, shaders, and draw calls using this lab as the concrete example — honest about learning depth.
+
+**Feature-specific NFRs:**
+
+- Unmount deletes buffers/textures/programs created by the lab (AD-6).
+
+### 4.4 Home (Blits / Lightning) Surface
+
+**Description:** At least one horizontal Home rail of focusable posters using Blits on Lightning 3 Renderer (applied WebGL scene graph). Realizes UJ-2.
 
 #### FR-8: Focusable Home Rail
 
@@ -153,9 +193,9 @@ Off-screen or far tiles do not keep full-resolution Textures loaded indefinitely
 
 Repo includes a short Perf Note covering focus scroll smoothness and cleanup behavior.
 
-### 4.4 Live (SolidJS) Surface
+### 4.5 Live (SolidJS) Surface
 
-**Description:** SolidJS Live Strip demonstrating fine-grained updates. Realizes UJ-3. Video is mocked (poster/color field).
+**Description:** SolidJS Live Strip demonstrating fine-grained updates. Realizes UJ-4. Video is mocked (poster/color field).
 
 #### FR-11: Live Strip Signal Updates
 
@@ -165,9 +205,9 @@ Learner sees now-playing text and/or clock update at least once per second witho
 
 README explains how the Live Strip update model differs from React-style rerender (learner-authored, accurate).
 
-### 4.5 Memory Soak & Portfolio Packaging
+### 4.6 Memory Soak & Portfolio Packaging
 
-**Description:** Lab D + portfolio README. Realizes UJ-4.
+**Description:** Lab D + portfolio README. Realizes UJ-5.
 
 #### FR-13: Memory Soak Procedure
 
@@ -180,6 +220,43 @@ Root README states stack map, how to run, honesty about desktop proxy, and links
 **Feature-specific NFRs:**
 
 - Perf Notes must label environment (browser, machine class).
+
+### 4.7 Quality gates — UT, E2E, Emulator
+
+**Description:** TV-aware test ladder so regressions are caught before any “release” claim. Full strategy: `docs/testing-strategy.md`. Emulators/simulators are specialized OEM tools; they do not replace a physical TV for memory/DRM.
+
+#### FR-18: Unit tests for shared logic
+
+Learner (and CI) can run Vitest covering Visible Window math, D-pad key map, and other pure helpers in `packages/shared`.
+
+**Consequences (testable):**
+
+- `pnpm test` (or documented equivalent) exits 0 with failing tests on broken window math.
+- Surface packages are not required to hit vanity UI coverage percentages.
+
+#### FR-19: Playwright D-pad smoke E2E
+
+Learner (and CI) can run a Playwright suite that opens Shell, navigates into each Surface with Arrow keys, and returns with Back — asserting app-owned outcomes (not DOM-only focus for Canvas/WebGL/Blits).
+
+**Consequences (testable):**
+
+- Suite runs against desktop Chromium.
+- At least one smoke path per Surface exists by portfolio MVP polish.
+- Focus assertions for non-DOM Surfaces use debug HUD / test hooks / `data-focus-id` (or equivalent).
+
+#### FR-20: Emulator / Simulator dry-run notes
+
+Before claiming packaging readiness, learner documents at least one run on a **TV Simulator or TV Emulator** (prefer Samsung Tizen path first) with limitations called out (no DRM, memory ≠ device).
+
+**Consequences (testable):**
+
+- `docs/perf-notes/emulator-tizen.md` (or webOS equivalent) exists with tool name, version, what passed/failed, and honesty that device testing remains the gate for real release.
+- Chrome CPU throttle checklist is documented even if OEM tools are delayed.
+
+**Feature-specific NFRs:**
+
+- CI requires FR-18 + FR-19; FR-20 is manual/dev-machine (heavy VMs).
+- Physical TV soak remains separate from FR-20.
 
 ## 5. Non-Goals (Explicit)
 
@@ -195,28 +272,35 @@ Root README states stack map, how to run, honesty about desktop proxy, and links
 
 ### 6.1 In Scope
 
-- Shell with three Surfaces (FR-1–FR-3).
+- Shell with four Surfaces including WebGL Lab (FR-1–FR-3, FR-15).
 - Canvas EPG virtualization + D-pad + now-line + Perf Note (FR-4–FR-7).
+- **WebGL Lab + Canvas vs WebGL Perf Note + vocabulary (FR-15–FR-17).**
 - Blits Home rail + lazy textures + Perf Note (FR-8–FR-10).
 - Solid Live Strip + README explanation (FR-11–FR-12).
 - Memory Soak doc + portfolio README (FR-13–FR-14).
+- **Vitest UT + Playwright D-pad smoke (FR-18–FR-19); emulator/simulator dry-run notes (FR-20).**
 
 ### 6.2 Out of Scope for MVP
 
 - Second Home rail / personalization. `[NOTE FOR PM: nice interview polish later]`
-- WebGL rewrite of EPG (document as future comparison only).
+- Full custom WebGL UI framework replacing Blits for Home.
+- Advanced WebGL2 features (MRT, complex lighting) beyond textured 2D UI tiles.
 - SolidTV migration.
-- On-device CI farms.
+- On-device CI farms / automated emulator farms in CI.
 - Backend APIs.
+- Claiming store certification from Simulator/Emulator alone.
 
 ## 7. Success Metrics
 
 | Metric | Target |
 | --- | --- |
-| Surfaces runnable | 3/3 from README scripts |
+| Surfaces runnable | 4/4 from README scripts (Home, Live, EPG, WebGL Lab) |
+| WebGL literacy | Can whiteboard pipeline + demo FR-15–16 in ≤5 minutes |
 | EPG virtualization evidence | Visible Window draw count ≪ total logical cells |
 | Memory Soak | No unbounded heap growth over 30 min (or leak fixed + retested) |
-| Interview readiness | Builder can demo UJ-1–UJ-3 in ≤10 minutes |
+| Interview readiness | Builder can demo UJ-1–UJ-4 in ≤12 minutes |
+| UT + E2E | `pnpm test` + Playwright D-pad smoke green on CI |
+| Emulator honesty | FR-20 notes exist before any packaging “ready” claim |
 | Honesty | README states desktop proxy + learning purpose |
 
 **Counter-metrics (avoid gaming):**
@@ -246,6 +330,7 @@ Root README states stack map, how to run, honesty about desktop proxy, and links
 | Blits ramp delay | Official `npm create @lightningjs/app` starter |
 | Incomplete soak | MVP gate includes FR-13 |
 | Overclaiming | FR-14 honesty section |
+| Emulator ≠ device | FR-20 + testing-strategy honesty; physical TV remains L4 |
 
 ---
 
