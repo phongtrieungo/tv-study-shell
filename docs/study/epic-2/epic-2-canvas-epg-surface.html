@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Epic 2 Study Guide: Canvas EPG Surface</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --ok: #86efac;
+        --now: #f87171;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .arc {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .arc-step {
+        border-left: 3px solid var(--accent-2);
+        padding-left: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Epic 2 synthesis · FR-4–FR-7</p>
+        <h1>Canvas EPG Surface</h1>
+        <p>
+          One start→end picture of Lab A: how a large channel × time schedule becomes a
+          <strong>demoable Canvas Program Grid</strong> — virtualized, focusable, with separated
+          now-line chrome, and a <strong>labeled Perf Note</strong> so interview claims are measured.
+        </p>
+      </header>
+
+      <section>
+        <h2>The problem this epic solves</h2>
+        <p>
+          A 50-channel × 24h EPG is ~600 logical program cells. Drawing all of them (or building a DOM
+          node per cell) fails on constrained TV-like budgets. Epic 2 proves the interview answer:
+          <span class="ok">compute a Visible Window, draw only that subset, measure it, and keep
+          chrome updates off the grid rebuild path</span>.
+        </p>
+      </section>
+
+      <section>
+        <h2>Learning arc (2.1 → 2.4)</h2>
+        <div class="arc">
+          <div class="arc-step">
+            <h3>2.1 — Visible Window math</h3>
+            <p>
+              Put pure window math in <code>@tvshell/shared</code>. Mount
+              <code>@tvshell/epg-canvas</code>. HUD shows <code>drawn N ≪ logical 600</code>. Arrows
+              move the window. Registry-swap only <code>epg</code>.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./2-1-epg-canvas-visible-window-math.html">2-1 Visible Window</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>2.2 — App-owned D-pad focus + select</h3>
+            <p>
+              Canvas has no DOM focus forest. Keep one <code>(channel, time)</code> cursor. Program-boundary
+              ←→, ↑↓ column affinity. Enter opens minimal detail. Back peels detail before Shell leave.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./2-2-epg-dpad-focus-and-program-select.html">2-2 Focus &amp; select</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>2.3 — Now-line as separated chrome</h3>
+            <p>
+              Demo clock remaps wall time into the fixture day. Soft-red NOW overlay ticks without
+              rebuilding fixtures. HUD <code>model stable</code>. Timer cleared on leave (AD-6).
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./2-3-epg-now-line-indicator.html">2-3 Now-line</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>2.4 — Measured Perf Note</h3>
+            <p>
+              AD-8: numbers without environment labels do not count. First note at
+              <a href="../../perf-notes/epg.md"><code>docs/perf-notes/epg.md</code></a> —
+              drawn 20–30 ≪ 600 on a named desktop Chromium proxy.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./2-4-epg-perf-note.html">2-4 Perf Note</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>How the pieces fit</h2>
+        <pre>fixtures (600 programs)
+        │
+        ▼
+computeVisibleWindow(focus, viewport)     ← @tvshell/shared (AD-5, AD-9 reuse)
+        │
+        ▼
+programsInVisibleWindow → Canvas paint     ← focus / resize / detail dirty
+        │
+        ├── amber focus cell + cyan time cursor
+        ├── DOM detail panel (Enter / nested Back)
+        └── DOM now-line overlay (timer; model stable)
+
+Shell: mount/unmount + Back at Surface root
+Perf Note: labeled env + drawn ≪ logical (+ honesty)</pre>
+      </section>
+
+      <section>
+        <h2>Demo / interview script (~5 minutes)</h2>
+        <ol>
+          <li>Shell → <strong>EPG</strong>. Point at HUD: <code>drawn ≪ logical 600</code>.</li>
+          <li>Hold ↑↓ / ←→ — window moves; focus ring stays visible; only tens of cells draw.</li>
+          <li>Enter → detail; Back → dismiss; Back again → menu (cleanup / side effects cleared).</li>
+          <li>Watch NOW line drift; say “chrome tick, not grid rebuild.”</li>
+          <li>Open <code>docs/perf-notes/epg.md</code> — name browser/OS/machine; refuse unlabeled “60 FPS.”</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li><strong>Why not DOM cells?</strong> Node count / layout cost on weak devices.</li>
+          <li><strong>Visible Window</strong> — algorithm, not a library slogan; shared math for WebGL Lab next.</li>
+          <li><strong>App-owned focus</strong> — do not trust <code>document.activeElement</code> on canvas.</li>
+          <li><strong>Separated dirty paths</strong> — grid vs now-line chrome (industry pattern too).</li>
+          <li><strong>Measure → claim</strong> — AD-8; desktop proxy ≠ OEM TV.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop Chromium + keyboard-as-D-pad — not Tizen/webOS certification.</li>
+          <li>Demo clock is accelerated teaching time, not live airtime sync.</li>
+          <li>Vitest / Playwright still Epic 7 — confidence today is typecheck + build + smoke + docs.</li>
+          <li>HiDPI, Date.parse precompute, overlapping-program nav edges — deferred; do not expand into Epic 3 unless blocked.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What’s next — Epic 3 WebGL Lab</h2>
+        <p>
+          Same Visible Window <em>idea</em>, rendered with
+          <code>WebGLRenderingContext</code> / WebGL2: buffers, textures, shaders, draw calls.
+          Then Canvas vs WebGL Perf Note + vocabulary write-up. Orientation:
+          <a href="../../webgl-investment.md">docs/webgl-investment.md</a>.
+        </p>
+        <p class="muted">
+          Zero prior WebGL experience is expected — Epic 3 stories should teach the pipeline, not assume it.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

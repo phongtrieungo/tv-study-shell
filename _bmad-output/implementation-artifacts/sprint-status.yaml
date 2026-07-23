@@ -20,12 +20,12 @@ development_status:
   1-4-surface-host-mount-unmount-contract: done
   epic-1-retrospective: done
 
-  epic-2: in-progress
+  epic-2: done
   2-1-epg-canvas-visible-window-math: done
   2-2-epg-dpad-focus-and-program-select: done
   2-3-epg-now-line-indicator: done
-  2-4-epg-perf-note: backlog
-  epic-2-retrospective: optional
+  2-4-epg-perf-note: done
+  epic-2-retrospective: done
 
   epic-3: backlog
   3-1-webgl-lab-textured-visible-window: backlog
@@ -74,3 +74,19 @@ action_items:
     action: "On 2.1 implementation, add epg-canvas and registry-swap epg off the stub"
     owner: "Amelia"
     status: done
+  - epic: 2
+    action: "Create epic-2 study synthesis HTML and link from docs/index.md"
+    owner: "Paige / Amelia"
+    status: done
+  - epic: 2
+    action: "Run create-story for 3.1 WebGL Lab with extra WebGL teaching context (zero-experience assumed)"
+    owner: "Ngotrieuphong / Amelia"
+    status: open
+  - epic: 2
+    action: "Do not expand Epic 2 deferred polish (HiDPI / Date.parse / overlapping nav) into Epic 3 unless blocked"
+    owner: "Amelia / Winston"
+    status: open
+  - epic: 2
+    action: "Before 3.1 implement: skim docs/webgl-investment.md once for orientation"
+    owner: "Ngotrieuphong"
+    status: open

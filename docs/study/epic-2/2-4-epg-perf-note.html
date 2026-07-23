@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 2.4 Study Guide: EPG Perf Note</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --ok: #86efac;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        padding: 0.45rem 0.35rem;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 2.4 · FR-7 / AD-8</p>
+        <h1>EPG · Measured Perf Note</h1>
+        <p>
+          Unlabeled “60 FPS” is a credibility fail. This story makes performance
+          <strong>first-class docs</strong>: environment + method + numbers under
+          <code>docs/perf-notes/epg.md</code>, linked from the README.
+        </p>
+      </header>
+
+      <section>
+        <h2>Mental model</h2>
+        <ol>
+          <li>
+            <strong>AD-8</strong> — Perf Notes live in <code>docs/perf-notes/</code> with browser / OS /
+            machine class labeled. README links them. Claims without labels do not count.
+          </li>
+          <li>
+            <strong>What to measure on EPG</strong> — Primary:
+            <span class="ok">drawn ≪ logical</span> (virtualization evidence). Secondary: interaction
+            smoothness / Frame rendering stats while D-pad scrolling. Optional: CPU 4×–6× throttle.
+          </li>
+          <li>
+            <strong>Paint model matters</strong> — EPG coalesces Canvas paints on focus / resize / detail.
+            It is <em>not</em> a continuous full-grid RAF loop. Idle compositor FPS ≈ display refresh;
+            do not confuse that with “we paint 120 grids per second.”
+          </li>
+          <li>
+            <strong>Two paths (ties 2.1–2.3)</strong> — Focus → Visible Window → paint. Clock tick →
+            now-line chrome only (<code>model stable</code>). Measure both stories honestly.
+          </li>
+        </ol>
+        <pre>logical cells = 600
+drawn cells   = tens (HUD)     ←── interview proof of Visible Window
+
+idle rAF      ≈ display Hz     ←── cadence ceiling, not grid work
+arrow spam    → schedulePaint  ←── real interaction cost
+
+now-line tick → DOM left only  ←── must not rebuild fixtures</pre>
+      </section>
+
+      <section>
+        <h2>How to measure (Chrome / Chromium)</h2>
+        <ol>
+          <li>Run Shell → Menu → <strong>EPG</strong>.</li>
+          <li>Read HUD: <code>drawn N ≪ logical 600</code>.</li>
+          <li>
+            DevTools Command Menu → <strong>Show Rendering</strong> → enable
+            <strong>Frame rendering stats</strong>. Hold arrows; watch the overlay.
+          </li>
+          <li>
+            Optional: Performance panel short recording; optional CPU throttle 4×–6×
+            ([testing-strategy.md](../../testing-strategy.md)).
+          </li>
+          <li>Write the note with environment labeled — copy the shape in <code>epg.md</code>.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            “We keep ~600 logical programs in fixtures but draw only the Visible Window — HUD showed
+            <strong>20–30 drawn</strong> on this laptop stage.”
+          </li>
+          <li>
+            “I will not claim TV FPS from a MacBook without naming the proxy. Domain floor is ~30 FPS UI;
+            60 is aspirational on entry hardware.”
+          </li>
+          <li>
+            “Now-line ticks do not reconstruct the model — that is separated chrome, not another
+            virtualization pass.”
+          </li>
+          <li>
+            “Next comparison is Canvas vs WebGL (Story 3.2) using the <em>same</em> env-label template.”
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What the numbers prove vs don’t</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Proves</th>
+              <th>Does not prove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Virtualization discipline (drawn ≪ logical)</td>
+              <td>OEM TV memory / GC behavior</td>
+            </tr>
+            <tr>
+              <td>You measured on a named browser/OS/machine</td>
+              <td>Store certification or DRM pipeline health</td>
+            </tr>
+            <tr>
+              <td>Idle rAF hits display refresh on a Pro laptop</td>
+              <td>That every keypress paints at 120 Hz forever</td>
+            </tr>
+            <tr>
+              <td>Chrome-only now-line ticks stay model-stable</td>
+              <td>Live schedule sync / broadcast wall-clock truth</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Demo script</h2>
+        <ol>
+          <li>Open <code>docs/perf-notes/epg.md</code> — point at Environment + Results.</li>
+          <li>Live: Shell → EPG → show HUD <code>drawn ≪ logical</code>.</li>
+          <li>Hold ↑↓ — window moves; drawn stays in the tens.</li>
+          <li>Wait for ticks — <code>model stable</code>; explain chrome vs grid dirty paths.</li>
+          <li>Say the honesty line: desktop proxy, not Tizen/webOS device truth.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>First Perf Note in the repo — later notes (3.2, 4.4, 6.2) should mirror the template.</li>
+          <li>No Vitest/Playwright gate for this artifact (Epic 7); measurement is documented, not CI.</li>
+          <li>Do not invent a continuous grid RAF loop just to mint an FPS number.</li>
+          <li>Epic synthesis HTML after Epic 2 close belongs in the optional retrospective.</li>
+        </ul>
+        <p class="muted">
+          Artifact: <code>docs/perf-notes/epg.md</code> · Next epic priority: WebGL Lab (Story 3.1).
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

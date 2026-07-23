@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.3 EPG now-line indicator)
+Generated: 2026-07-22 · Updated: 2026-07-23 (Epic 2 retrospective + synthesis)
 
 ## Product
 
@@ -32,10 +32,13 @@ Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.3 EPG now-line indicator)
 - Story 1.2: [Shared fixtures and D-pad key map](study/epic-1/1-2-shared-fixtures-and-dpad-key-map.html)
 - Story 1.3: [Safe Zone shell chrome and surface menu](study/epic-1/1-3-safe-zone-shell-chrome-and-surface-menu.html)
 - Story 1.4: [Surface host mount/unmount contract](study/epic-1/1-4-surface-host-mount-unmount-contract.html)
+- **Epic 2:** [Canvas EPG Surface](study/epic-2/epic-2-canvas-epg-surface.html) (synthesis)
 - Story 2.1: [EPG canvas Visible Window math](study/epic-2/2-1-epg-canvas-visible-window-math.html)
 - Story 2.2: [EPG D-pad focus and program select](study/epic-2/2-2-epg-dpad-focus-and-program-select.html)
 - Story 2.3: [EPG now-line indicator](study/epic-2/2-3-epg-now-line-indicator.html)
+- Story 2.4: [EPG Perf Note](study/epic-2/2-4-epg-perf-note.html)
+- Perf Note: [EPG measured draw / FPS](perf-notes/epg.md)
 
 ## Next implementation step
 
-Run `bmad-create-story` for **2.4 EPG Perf Note** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
+Epic 2 is closed (retro + synthesis). Run `bmad-create-story` for **3.1 WebGL Lab textured Visible Window** — create-story must assume **zero WebGL experience** and include pipeline teaching context. Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).

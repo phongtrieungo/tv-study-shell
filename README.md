@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, and a separated demo now-line (`packages/epg-canvas`). Home / Live / WebGL Lab still use the stub until Epics 3–5. See [docs/index.md](docs/index.md).  
+> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, a separated demo now-line (`packages/epg-canvas`), and a labeled Perf Note ([docs/perf-notes/epg.md](docs/perf-notes/epg.md)). Home / Live / WebGL Lab still use the stub until Epics 3–5. See [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -74,7 +74,7 @@ pnpm dev
 
 Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Home / Live / WebGL Lab still mount the stub. Story **2.4** adds the EPG Perf Note; Story **6.2** Memory Soak validates cleanup across real Surfaces.
+Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Measured draw/FPS notes: [docs/perf-notes/epg.md](docs/perf-notes/epg.md). Home / Live / WebGL Lab still mount the stub. Story **6.2** Memory Soak validates cleanup across real Surfaces.
 
 ## Testing (UT / E2E / Emulator)
 
@@ -94,7 +94,7 @@ TV apps need a **ladder**, not a single tool. Full write-up: [docs/testing-strat
 
 | Artifact | Purpose | Status |
 | --- | --- | --- |
-| `docs/perf-notes/epg.md` | EPG FPS / draw accounting | Planned |
+| [`docs/perf-notes/epg.md`](docs/perf-notes/epg.md) | EPG FPS / draw accounting | **Measured** (2026-07-23) |
 | `docs/perf-notes/canvas-vs-webgl.md` | Canvas EPG vs WebGL Lab | Planned |
 | `docs/perf-notes/home.md` | Home focus scroll + texture cleanup | Planned |
 | `docs/perf-notes/memory-soak.md` | ~30 min navigate + heap before/after | Planned |
