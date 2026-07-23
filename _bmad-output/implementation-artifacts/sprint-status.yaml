@@ -22,7 +22,7 @@ development_status:
 
   epic-2: in-progress
   2-1-epg-canvas-visible-window-math: done
-  2-2-epg-dpad-focus-and-program-select: backlog
+  2-2-epg-dpad-focus-and-program-select: done
   2-3-epg-now-line-indicator: backlog
   2-4-epg-perf-note: backlog
   epic-2-retrospective: optional

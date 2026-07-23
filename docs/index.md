@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.1 EPG Visible Window)
+Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.2 EPG focus + program select)
 
 ## Product
 
@@ -28,12 +28,13 @@ Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.1 EPG Visible Window)
 
 ## Study guides
 
-- **Epic 1:** [Monorepo Shell Foundation](study/epic-1-monorepo-shell-foundation.html) (synthesis)
-- Story 1.2: [Shared fixtures and D-pad key map](study/1-2-shared-fixtures-and-dpad-key-map.html)
-- Story 1.3: [Safe Zone shell chrome and surface menu](study/1-3-safe-zone-shell-chrome-and-surface-menu.html)
-- Story 1.4: [Surface host mount/unmount contract](study/1-4-surface-host-mount-unmount-contract.html)
-- Story 2.1: [EPG canvas Visible Window math](study/2-1-epg-canvas-visible-window-math.html)
+- **Epic 1:** [Monorepo Shell Foundation](study/epic-1/epic-1-monorepo-shell-foundation.html) (synthesis)
+- Story 1.2: [Shared fixtures and D-pad key map](study/epic-1/1-2-shared-fixtures-and-dpad-key-map.html)
+- Story 1.3: [Safe Zone shell chrome and surface menu](study/epic-1/1-3-safe-zone-shell-chrome-and-surface-menu.html)
+- Story 1.4: [Surface host mount/unmount contract](study/epic-1/1-4-surface-host-mount-unmount-contract.html)
+- Story 2.1: [EPG canvas Visible Window math](study/epic-2/2-1-epg-canvas-visible-window-math.html)
+- Story 2.2: [EPG D-pad focus and program select](study/epic-2/2-2-epg-dpad-focus-and-program-select.html)
 
 ## Next implementation step
 
-Run `bmad-create-story` for **2.2 EPG D-pad focus and program select** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
+Run `bmad-create-story` for **2.3 EPG now-line indicator** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.

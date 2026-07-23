@@ -88,6 +88,7 @@ so that the app feels TV-shaped and I can choose Home / Live / EPG / WebGL Lab (
 **In scope:** Visible Safe Zone chrome + focusable four-item Surface menu in the thin DOM Shell; consume shared D-pad map; study HTML; README/docs honesty.
 
 **Out of scope (later stories):**
+
 - Surface host `mount` / `unmount` contract + stub Surface → **1.4**
 - Real EPG / WebGL / Home / Live packages → **Epics 2–5**
 - Back returns from Surface root to menu → **1.4+** (AD-4 full loop)
@@ -255,6 +256,7 @@ Preserve fixture imports only if still useful for a debug readout; they are **no
 ### Git intelligence
 
 Recent commits:
+
 - `a8dd356` — Add shared mock fixtures and D-pad key map for Story 1.2
 - `baa282b` — Scaffold pnpm monorepo with Vite shell and shared package
 
