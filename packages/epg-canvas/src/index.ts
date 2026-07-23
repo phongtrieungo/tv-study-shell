@@ -1,5 +1,6 @@
 /**
- * Canvas EPG Surface — Visible Window virtualization (Story 2.1 / FR-4 / AD-5).
+ * Canvas EPG Surface — Visible Window + D-pad focus / program detail
+ * (Stories 2.1–2.2 / FR-4–FR-5 / AD-4–AD-6).
  * Mount context shape matches Shell `SurfaceMountContext` structurally.
  */
 
@@ -14,9 +15,10 @@ import {
   type Program,
   type VisibleWindow,
 } from '@tvshell/shared';
+import { createDetailPanel, type DetailPanel } from './detail.js';
+import { adjacentProgramFocusTime, findProgramAt } from './focus.js';
 import { drawEpgGrid, viewportFromStage } from './render.js';
 
-const TIME_STEP_MS = 30 * 60 * 1000; // 30 minutes
 const MS_PER_HOUR = 60 * 60 * 1000;
 const FALLBACK_STAGE_W = 640;
 const FALLBACK_STAGE_H = 360;
@@ -29,7 +31,14 @@ let hostEl: HTMLElement | null = null;
 let stageEl: HTMLElement | null = null;
 let canvasEl: HTMLCanvasElement | null = null;
 let hudEl: HTMLElement | null = null;
+let detailPanel: DetailPanel | null = null;
+let detailOpen = false;
+/** After Back dismisses detail, swallow Back repeats until keyup (AD-4). */
+let ignoreBackUntilKeyup = false;
+/** One-shot HUD cue when Enter finds no program under focus. */
+let noProgramFlash = false;
 let onKey: ((event: KeyboardEvent) => void) | null = null;
+let onKeyUp: ((event: KeyboardEvent) => void) | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let rafId: number | null = null;
 let focusChannelIndex = 0;
@@ -44,11 +53,49 @@ function assertSchedule(): void {
   }
 }
 
+function focusedChannelId(): string | null {
+  return channels[focusChannelIndex]?.channelId ?? null;
+}
+
+function focusedProgram(): Program | null {
+  const channelId = focusedChannelId();
+  if (!channelId) {
+    return null;
+  }
+  return findProgramAt(channelId, focusTimeMs, programs);
+}
+
+function closeDetail(): void {
+  detailOpen = false;
+  detailPanel?.clear();
+  schedulePaint();
+}
+
+function openDetail(program: Program): void {
+  if (!detailPanel) {
+    return;
+  }
+  noProgramFlash = false;
+  detailPanel.setProgram(program);
+  detailOpen = true;
+  schedulePaint();
+  console.info('[epg] program detail', {
+    programId: program.programId,
+    title: program.title,
+    start: program.start,
+    end: program.end,
+  });
+}
+
 function disposeSideEffects(): void {
   if (onKey) {
     // Must match addEventListener(..., true) or the capture listener leaks and steals menu arrows.
     window.removeEventListener('keydown', onKey, true);
     onKey = null;
+  }
+  if (onKeyUp) {
+    window.removeEventListener('keyup', onKeyUp);
+    onKeyUp = null;
   }
   if (resizeObserver) {
     resizeObserver.disconnect();
@@ -58,6 +105,10 @@ function disposeSideEffects(): void {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
+  detailOpen = false;
+  ignoreBackUntilKeyup = false;
+  noProgramFlash = false;
+  detailPanel?.clear();
 }
 
 function windowKey(window: VisibleWindow): string {
@@ -97,16 +148,21 @@ function formatTime(ms: number): string {
   return new Date(ms).toISOString().slice(11, 16);
 }
 
-function updateHud(window: VisibleWindow, drawnCells: number, extra?: string): void {
+function updateHud(window: VisibleWindow, drawnCells: number): void {
   if (!hudEl) {
     return;
   }
-  const base =
+  const focused = focusedProgram();
+  const focusLabel = focused
+    ? `focused: ${focused.title}`
+    : `focus ch ${focusChannelIndex + 1} @ ${formatTime(focusTimeMs)}`;
+  const detailLabel = detailOpen ? ' · detail open' : '';
+  const flashLabel = noProgramFlash ? ' · no program at focus' : '';
+  hudEl.textContent =
     `drawn ${drawnCells} ≪ logical ${logicalCells} · ` +
     `ch ${window.channelStart + 1}–${window.channelEnd} / ${channels.length} · ` +
     `time ${formatTime(window.timeStartMs)}–${formatTime(window.timeEndMs)} UTC · ` +
-    `focus ch ${focusChannelIndex + 1} @ ${formatTime(focusTimeMs)}`;
-  hudEl.textContent = extra ? `${base} · ${extra}` : base;
+    `${focusLabel}${detailLabel}${flashLabel}`;
 }
 
 function paint(): void {
@@ -190,18 +246,39 @@ function clampFocus(): void {
   focusTimeMs = Math.min(Math.max(focusTimeMs, dayStartMs), dayEndMs - 1);
 }
 
+/** ↑↓ channels (column affinity); ←→ adjacent program on the focused channel. */
 function handleAction(action: 'up' | 'down' | 'left' | 'right'): void {
+  noProgramFlash = false;
   if (action === 'up') {
     focusChannelIndex -= 1;
   } else if (action === 'down') {
     focusChannelIndex += 1;
-  } else if (action === 'left') {
-    focusTimeMs -= TIME_STEP_MS;
-  } else if (action === 'right') {
-    focusTimeMs += TIME_STEP_MS;
+  } else {
+    const channelId = focusedChannelId();
+    if (channelId) {
+      const nextTime = adjacentProgramFocusTime(
+        channelId,
+        focusTimeMs,
+        programs,
+        action,
+      );
+      if (nextTime != null) {
+        focusTimeMs = nextTime;
+      }
+    }
   }
   clampFocus();
   schedulePaint();
+}
+
+function handleSelect(): void {
+  const program = focusedProgram();
+  if (!program) {
+    noProgramFlash = true;
+    schedulePaint();
+    return;
+  }
+  openDetail(program);
 }
 
 export function mount(
@@ -215,18 +292,21 @@ export function mount(
   focusChannelIndex = 0;
   focusTimeMs = dayStartMs;
   lastLoggedWindowKey = '';
+  detailOpen = false;
+  ignoreBackUntilKeyup = false;
+  noProgramFlash = false;
 
   const root = document.createElement('div');
   root.className = 'epg-canvas';
   root.dataset.testid = 'epg-canvas';
 
   const title = document.createElement('h2');
-  title.textContent = 'EPG — Visible Window';
+  title.textContent = 'EPG — Focus & Select';
 
   const hint = document.createElement('p');
   hint.className = 'epg-canvas__hint';
   hint.textContent =
-    'Arrows move focus (↑↓ channels, ←→ time). Only the Visible Window is drawn. Back returns to the menu.';
+    '↑↓ channels · ←→ jump programs · Enter opens detail · Back closes detail, then returns to the menu. Only the Visible Window is drawn.';
 
   const hud = document.createElement('p');
   hud.className = 'epg-canvas__hud';
@@ -243,28 +323,72 @@ export function mount(
   canvas.dataset.testid = 'epg-grid';
   canvas.setAttribute('aria-label', 'Electronic Program Guide grid');
 
-  stage.append(canvas);
+  const detail = createDetailPanel();
+
+  // Detail overlays the stage so opening it does not shrink the Visible Window.
+  stage.append(canvas, detail.root);
   root.append(title, hint, hud, stage);
   host.replaceChildren(root);
 
   stageEl = stage;
   canvasEl = canvas;
   hudEl = hud;
+  detailPanel = detail;
+
+  onKeyUp = () => {
+    ignoreBackUntilKeyup = false;
+  };
+  window.addEventListener('keyup', onKeyUp);
 
   onKey = (event: KeyboardEvent) => {
     if (event.ctrlKey || event.metaKey || event.altKey) {
       return;
     }
     const action = getDpadAction(event);
-    if (!action || action === 'back' || action === 'select') {
-      // Shell owns Back; program detail is Story 2.2.
+    if (!action) {
       return;
     }
+
+    // Hold-Back after dismiss must not bubble to Shell leave.
+    if (action === 'back' && ignoreBackUntilKeyup) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    // Nested Back: dismiss detail without leaving the Surface (AD-4).
+    if (detailOpen) {
+      if (action === 'back') {
+        event.preventDefault();
+        event.stopPropagation();
+        closeDetail();
+        ignoreBackUntilKeyup = true;
+        return;
+      }
+      // Modal step: ignore arrows / select while detail is open.
+      if (action === 'select' || action === 'up' || action === 'down' || action === 'left' || action === 'right') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      return;
+    }
+
+    // Surface root Back stays with Shell (bubble leave).
+    if (action === 'back') {
+      return;
+    }
+
     event.preventDefault();
     event.stopPropagation();
+
+    if (action === 'select') {
+      handleSelect();
+      return;
+    }
+
     handleAction(action);
   };
-  // Capture so we handle arrows before Shell's bubble listener no-ops them.
+  // Capture so we handle arrows/select before Shell's bubble listener.
   window.addEventListener('keydown', onKey, true);
 
   resizeObserver = new ResizeObserver(() => {
@@ -285,11 +409,13 @@ export function unmount(): void {
   stageEl = null;
   canvasEl = null;
   hudEl = null;
+  detailPanel = null;
+  detailOpen = false;
   lastLoggedWindowKey = '';
   console.info('[epg] unmount');
 }
 
 /** Smoke/console proof that AD-6 cleanup ran. */
 export function hasActiveSideEffects(): boolean {
-  return onKey != null || rafId != null || resizeObserver != null;
+  return onKey != null || onKeyUp != null || rafId != null || resizeObserver != null;
 }

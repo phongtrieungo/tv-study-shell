@@ -130,14 +130,16 @@ export function drawEpgGrid(args: DrawEpgArgs): void {
       focusTimeMs >= startMs &&
       focusTimeMs < endMs;
 
-    ctx.fillStyle = isFocus ? '#3b4a63' : '#243044';
+    ctx.fillStyle = isFocus ? '#4a5d7a' : '#243044';
     ctx.fillRect(round(x), round(y), round(w), round(h));
     ctx.strokeStyle = isFocus ? '#fbbf24' : '#3d4f6a';
-    ctx.lineWidth = isFocus ? 2 : 1;
+    ctx.lineWidth = isFocus ? 3 : 1;
     ctx.strokeRect(round(x) + 0.5, round(y) + 0.5, round(w) - 1, round(h) - 1);
 
-    ctx.fillStyle = '#e8ecf3';
-    ctx.font = '12px "Segoe UI", system-ui, sans-serif';
+    ctx.fillStyle = isFocus ? '#fff8e7' : '#e8ecf3';
+    ctx.font = isFocus
+      ? '600 13px "Segoe UI", system-ui, sans-serif'
+      : '12px "Segoe UI", system-ui, sans-serif';
     const label = program.title;
     if (w - 10 > 24) {
       ctx.save();

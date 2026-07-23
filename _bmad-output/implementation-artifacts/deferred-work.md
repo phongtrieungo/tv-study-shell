@@ -1,5 +1,9 @@
 # Deferred Work
 
+## Deferred from: code review of 2-2-epg-dpad-focus-and-program-select.md (2026-07-23)
+
+- Overlapping programs can stick ←→ neighbor nav (`adjacentProgramFocusTime`): if neighbor `startMs` still lies inside the current program’s `[start, end)`, focus time never advances. Current fixtures are contiguous non-overlapping blocks — harden if/when fixtures allow overlaps (or cover in Epic 7).
+
 ## Deferred from: code review of 2-1-epg-canvas-visible-window-math.md (2026-07-23)
 
 - Node smoke for Visible Window (`packages/shared/tests/story-2-1-smoke.mjs`) requires manual `tsc` emit + `SHARED_BUILD_DIR` and is not wired to a package script — fold into Story 7.1 Vitest or add a documented script later.

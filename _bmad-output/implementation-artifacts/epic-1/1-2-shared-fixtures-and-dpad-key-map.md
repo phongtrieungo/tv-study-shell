@@ -82,6 +82,7 @@ so that every Surface uses the same channels/rails vocabulary and keys (AD-3, AD
 **In scope:** Mock Data fixtures + shared D-pad key map in `@tvshell/shared`; types; barrel exports; study HTML.
 
 **Out of scope (later stories):**
+
 - Safe Zone chrome + Surface menu → **1.3**
 - Mount/unmount Surface host contract → **1.4**
 - Visible Window math / EPG canvas → **Epic 2**

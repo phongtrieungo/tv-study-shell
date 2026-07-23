@@ -94,6 +94,7 @@ so that Surfaces clean up on leave (FR-2, AD-2, AD-6).
 **In scope:** Documented Shell host `mount`/`unmount`; stub Surface package that registers and clears a listener/timer; chrome host + error-banner slots; menu enter/leave wiring; scrub 1.4 placeholders; study HTML; README/docs honesty.
 
 **Out of scope (later stories):**
+
 - Real EPG / WebGL / Home / Live Surface implementations → **Epics 2–5**
 - Blits iframe vs in-page mount strategy → **4.1** (keep host generic)
 - Full cross-surface nav hardening / focus restore matrix → **6.1**
@@ -266,6 +267,7 @@ export type SurfaceModule = {
 ### Git intelligence
 
 Recent commits:
+
 - `15a2847` — Add Safe Zone shell chrome and focusable Surface menu for Story 1.3
 - `a8dd356` — Add shared mock fixtures and D-pad key map for Story 1.2
 - `baa282b` — Scaffold pnpm monorepo with Vite shell and shared package

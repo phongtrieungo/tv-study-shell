@@ -73,6 +73,7 @@ so that I can run a single entrypoint for all Surfaces.
 **In scope:** Greenfield monorepo scaffold — root workspace, `apps/shell`, `packages/shared` stub, README start commands.
 
 **Out of scope (later stories):**
+
 - Fixtures / D-pad map → **1.2**
 - Safe Zone chrome + Surface menu → **1.3**
 - Mount/unmount Surface host contract → **1.4**

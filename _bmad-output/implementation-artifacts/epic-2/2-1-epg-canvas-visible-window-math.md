@@ -100,6 +100,7 @@ so that large grids stay responsive (FR-4, AD-5).
 **In scope:** Shared Visible Window pure math; `@tvshell/epg-canvas` Canvas 2D Surface drawing only the window; debug draw vs logical accounting; minimal arrow-driven window updates; registry-swap **only** `epg`; study HTML; README/docs honesty.
 
 **Out of scope (later stories):**
+
 - Full FR-5 focus UX + Enter program detail panel → **2.2**
 - Now-line independent of grid rebuild → **2.3**
 - `docs/perf-notes/epg.md` FPS write-up → **2.4**
@@ -280,6 +281,7 @@ Menu mode              → Shell menu focus only (unchanged)
 ### Git intelligence
 
 Recent commits:
+
 - `747b5c1` — Add Surface host mount/unmount contract and close Epic 1
 - `15a2847` — Add Safe Zone shell chrome and focusable Surface menu for Story 1.3
 - `a8dd356` — Add shared mock fixtures and D-pad key map for Story 1.2
