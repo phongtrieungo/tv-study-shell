@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@tvshell/epg-canvas": "workspace:*",
     "@tvshell/shared": "workspace:*",
     "@tvshell/surface-stub": "workspace:*"
   },

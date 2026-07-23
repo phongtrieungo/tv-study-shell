@@ -1,4 +1,5 @@
 import { getDpadAction } from '@tvshell/shared';
+import * as epgCanvas from '@tvshell/epg-canvas';
 import * as surfaceStub from '@tvshell/surface-stub';
 import { renderChrome } from './chrome/render-chrome.js';
 import { createSurfaceHost } from './host/surface-host.js';
@@ -21,13 +22,28 @@ const stubModule: SurfaceModule = {
   unmount: surfaceStub.unmount,
 };
 
-// Story 1.4: every destination maps to the same stub; later epics swap registry entries.
+const epgModule: SurfaceModule = {
+  mount: epgCanvas.mount,
+  unmount: epgCanvas.unmount,
+};
+
+// Story 2.1: EPG → real canvas package; other destinations remain on the stub.
 const registry = {
   home: stubModule,
   live: stubModule,
-  epg: stubModule,
+  epg: epgModule,
   'webgl-lab': stubModule,
 } as const satisfies SurfaceRegistry;
+
+const probeBySurface: Record<SurfaceId, () => boolean> = {
+  home: surfaceStub.hasActiveSideEffects,
+  live: surfaceStub.hasActiveSideEffects,
+  epg: epgCanvas.hasActiveSideEffects,
+  'webgl-lab': surfaceStub.hasActiveSideEffects,
+};
+
+/** Kept across leave so cleanupProbe still matches the Surface that just unmounted. */
+let cleanupProbeForActive: (() => boolean) | undefined;
 
 let restoreMenuFocus: (() => void) | null = null;
 
@@ -36,13 +52,16 @@ const host = createSurfaceHost({
   registry,
   setStatus: chrome.setStatus,
   setError: chrome.setError,
-  cleanupProbe: surfaceStub.hasActiveSideEffects,
-  onModeChange: (mode) => {
+  cleanupProbe: () => (cleanupProbeForActive ? cleanupProbeForActive() : false),
+  onModeChange: (mode, surfaceId) => {
     chrome.setSurfaceActive(mode === 'surface');
+    if (mode === 'surface' && surfaceId) {
+      cleanupProbeForActive = probeBySurface[surfaceId];
+    }
     if (mode === 'menu') {
       restoreMenuFocus?.();
       console.info('[shell] cleanup probe after leave', {
-        hasActiveSideEffects: surfaceStub.hasActiveSideEffects(),
+        hasActiveSideEffects: cleanupProbeForActive ? cleanupProbeForActive() : null,
       });
     }
   },
@@ -55,6 +74,8 @@ const focus = createMenuFocusController({
     }
   },
   onSelect: (id: SurfaceId) => {
+    // Set probe before mount so a failed mount / leave still reports the correct Surface.
+    cleanupProbeForActive = probeBySurface[id];
     void host.enter(id);
   },
   onBack: () => {
@@ -88,7 +109,7 @@ window.addEventListener(
       if (action === 'back') {
         void host.leave();
       }
-      // Surface owns its own input later; stub ignores arrows/select while mounted.
+      // EPG owns arrows via its own capture listener; stub ignores them.
       return;
     }
 
@@ -131,5 +152,5 @@ if (import.meta.hot) {
 console.info('[shell] chrome ready', {
   surfaces: SURFACE_MENU.map((item) => item.id),
   focused: focus.getFocusedId(),
-  host: 'surface-stub registry',
+  host: 'epg → @tvshell/epg-canvas; others → surface-stub',
 });

@@ -170,15 +170,19 @@ body {
 .surface-host {
   flex: 1;
   min-height: 12rem;
-  max-width: 42rem;
+  max-width: min(72rem, 100%);
   padding: 1.25rem 1.5rem;
   background: var(--bg-inner);
   border: 2px solid var(--border);
   border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .surface-host:not([hidden]) {
-  display: block;
+  display: flex;
 }
 
 .surface-host:focus {
@@ -187,6 +191,60 @@ body {
 
 .surface-host:focus-visible {
   box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.35);
+}
+
+.epg-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  height: 100%;
+}
+
+.epg-canvas h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+
+.epg-canvas__hint {
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--muted);
+  line-height: 1.4;
+  flex: 0 0 auto;
+}
+
+.epg-canvas__hud {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--accent);
+  background: rgba(10, 12, 16, 0.65);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  flex: 0 0 auto;
+}
+
+.epg-canvas__stage {
+  flex: 1 1 auto;
+  min-height: 12rem;
+  min-width: 0;
+  position: relative;
+}
+
+.epg-canvas__grid {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #12151c;
 }
 
 .surface-stub h2 {

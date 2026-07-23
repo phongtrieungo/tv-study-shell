@@ -6,7 +6,7 @@
 # note: Regenerated 2026-07-22 to insert Epic 3 WebGL Lab; Home/Live/Soak renumbered to 4–6
 
 generated: 2026-07-22
-last_updated: 2026-07-22
+last_updated: 2026-07-23
 project: tv-products
 project_key: TVSHELL
 tracking_system: file-system
@@ -20,8 +20,8 @@ development_status:
   1-4-surface-host-mount-unmount-contract: done
   epic-1-retrospective: done
 
-  epic-2: backlog
-  2-1-epg-canvas-visible-window-math: backlog
+  epic-2: in-progress
+  2-1-epg-canvas-visible-window-math: done
   2-2-epg-dpad-focus-and-program-select: backlog
   2-3-epg-now-line-indicator: backlog
   2-4-epg-perf-note: backlog
@@ -69,8 +69,8 @@ action_items:
   - epic: 1
     action: "Run create-story for 2.1 EPG canvas Visible Window math"
     owner: "Ngotrieuphong"
-    status: open
+    status: done
   - epic: 1
     action: "On 2.1 implementation, add epg-canvas and registry-swap epg off the stub"
     owner: "Amelia"
-    status: open
+    status: done

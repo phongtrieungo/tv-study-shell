@@ -4,3 +4,4 @@ export const SHARED_MARKER = '@tvshell/shared';
 export * from './fixtures';
 export * from './input';
 export * from './types';
+export * from './visible-window';

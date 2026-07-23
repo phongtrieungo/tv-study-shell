@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 2.1 Study Guide: EPG Canvas Visible Window Math</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 2.1</p>
+        <h1>EPG Canvas · Visible Window math</h1>
+        <p>
+          Interviewers ask how you keep a 50×24h guide responsive. The answer is not “Canvas is fast” —
+          it is <strong>Visible Window virtualization</strong>: compute which channels and time range are on
+          screen, draw only that subset, and prove it with a draw count.
+        </p>
+      </header>
+
+      <section>
+        <h2>Mental model</h2>
+        <ol>
+          <li>
+            <strong>Logical grid</strong> — every channel × every program in fixtures (here: 50 channels ×
+            12 two-hour blocks = <code>600</code> program cells).
+          </li>
+          <li>
+            <strong>Visible Window</strong> — the channel index range and time range currently in view
+            (driven by focus / scroll offsets + viewport size).
+          </li>
+          <li>
+            <strong>Draw set</strong> — programs that intersect the window. HUD / log must show
+            <code>drawn ≪ logical</code> (e.g. tens vs 600).
+          </li>
+        </ol>
+        <pre>focus + viewport size
+        ↓
+computeVisibleWindow()   ← pure, in @tvshell/shared (AD-5 / AD-9)
+        ↓
+filter programs ∩ window
+        ↓
+Canvas 2D draw only those cells + HUD accounting</pre>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            <strong>Why not DOM cells?</strong> Instantiating thousands of nodes for an EPG blows memory and
+            layout cost on TV-class Chromium. Canvas (or scene-graph) + windowing is the classic pattern.
+          </li>
+          <li>
+            <strong>Why shared math?</strong> WebGL Lab (Story 3.1) should reuse the same
+            <code>computeVisibleWindow</code> — GPU vs CPU is a renderer choice; the window is a data
+            problem (AD-9).
+          </li>
+          <li>
+            <strong>What updates the window?</strong> Arrow focus moves channel / time → recompute → redraw.
+            Full program-detail UX is a later story; the teaching point here is the window, not a polished
+            EPG product.
+          </li>
+          <li>
+            <strong>Cleanup ownership:</strong> Shell Back → <code>unmount</code>; EPG removes its key
+            listener and cancels RAF (AD-6). Shell keeps Back; Surface owns arrows while mounted.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Demo script (desktop proxy)</h2>
+        <ol>
+          <li>Open Shell → focus <strong>EPG</strong> → Enter.</li>
+          <li>Read the HUD: drawn cell count vs logical 600.</li>
+          <li>Hold ↑↓ / ←→ — window ranges and draw count change; you never draw the full 600.</li>
+          <li>Back — Surface unmounts; menu returns. Remount to prove lifecycle.</li>
+          <li>Honesty line: this is desktop Chromium + keyboard D-pad, not OEM TV memory truth.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>API shape to remember</h2>
+        <ul>
+          <li>
+            <code>computeVisibleWindow({ focusChannelIndex, focusTimeMs, viewportChannelCount,
+            viewportDurationMs, totalChannels, dayStartMs, dayEndMs, anchor })</code>
+          </li>
+          <li>
+            Returns <code>{ channelStart, channelEnd, timeStartMs, timeEndMs }</code> — clamped, no
+            negative indices, no overrun past the schedule.
+          </li>
+          <li>
+            <code>programsInVisibleWindow</code> / <code>countProgramsInVisibleWindow</code> for draw lists
+            and HUD accounting.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop Chromium + keyboard ≠ Tizen/webOS remote or device heap.</li>
+          <li>HUD draw counts are teaching evidence, not a labeled Perf Note yet (Story 2.4).</li>
+          <li>Vitest for this math lands in Story 7.1 — keep functions pure so CI can own them later.</li>
+        </ul>
+        <p class="muted">
+          Next in Epic 2: Story 2.2 (full D-pad focus + program detail), then now-line (2.3) and EPG Perf
+          Note (2.4).
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

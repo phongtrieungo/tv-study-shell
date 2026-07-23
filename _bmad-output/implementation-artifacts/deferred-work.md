@@ -1,5 +1,11 @@
 # Deferred Work
 
+## Deferred from: code review of 2-1-epg-canvas-visible-window-math.md (2026-07-23)
+
+- Node smoke for Visible Window (`packages/shared/tests/story-2-1-smoke.mjs`) requires manual `tsc` emit + `SHARED_BUILD_DIR` and is not wired to a package script — fold into Story 7.1 Vitest or add a documented script later.
+- No `devicePixelRatio` backing-store scaling on EPG canvas — fine for MVP teaching; revisit if demo looks soft on HiDPI.
+- Shared Visible Window helpers / EPG draw re-`Date.parse` ISO strings on every filter — acceptable at 600 programs; precompute ms if profiling shows cost.
+
 ## Deferred from: code review of 1-4-surface-host-mount-unmount-contract.md (2026-07-22)
 
 - Lifecycle timeout if mount/unmount Promise never settles — add when real Surfaces use async mount; current stub is sync. Epic 6 / later host hardening.
