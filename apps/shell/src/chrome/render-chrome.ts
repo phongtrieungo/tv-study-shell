@@ -33,7 +33,7 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
 
   const subtitle = document.createElement('p');
   subtitle.textContent =
-    'Safe Zone chrome + Surface menu. Select mounts a stub Surface; Back unmounts and returns here.';
+    'Safe Zone chrome + Surface menu. EPG mounts the Canvas Visible Window; Home / Live / WebGL Lab still use the stub. Back unmounts and returns here.';
 
   header.append(title, subtitle);
 
@@ -56,7 +56,7 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
   const hint = document.createElement('p');
   hint.className = 'shell-hint';
   hint.textContent =
-    'D-pad: ↑ / ↓ move · Enter mount stub · Backspace / Escape Back (from Surface → menu)';
+    'D-pad: ↑ / ↓ move · Enter mount · Backspace / Escape Back (from Surface → menu)';
 
   const statusEl = document.createElement('div');
   statusEl.className = 'shell-status';
@@ -89,8 +89,8 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
     menuHost.hidden = active;
     surfaceHost.hidden = !active;
     hint.textContent = active
-      ? 'Surface active — Backspace / Escape returns to the menu and unmounts the stub.'
-      : 'D-pad: ↑ / ↓ move · Enter mount stub · Backspace / Escape Back (from Surface → menu)';
+      ? 'Surface active — arrows may be owned by the Surface; Backspace / Escape returns to the menu.'
+      : 'D-pad: ↑ / ↓ move · Enter mount · Backspace / Escape Back (from Surface → menu)';
 
     if (active) {
       // Move focus off the now-hidden menu control (AT / keyboard ownership).
@@ -98,7 +98,7 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
     }
   };
 
-  setStatus('Ready — focus a Surface and press Enter to mount the stub.');
+  setStatus('Ready — focus a Surface and press Enter to mount.');
 
   // Label lives inside chrome padding so teaching copy stays in the Safe Zone.
   chrome.append(label, header, errorBanner, menuHost, surfaceHost, hint, statusEl);

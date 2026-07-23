@@ -10,6 +10,9 @@ importers:
 
   apps/shell:
     dependencies:
+      '@tvshell/epg-canvas':
+        specifier: workspace:*
+        version: link:../../packages/epg-canvas
       '@tvshell/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -23,6 +26,16 @@ importers:
       vite:
         specifier: 6.4.3
         version: 6.4.3
+
+  packages/epg-canvas:
+    dependencies:
+      '@tvshell/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   packages/shared:
     devDependencies:
