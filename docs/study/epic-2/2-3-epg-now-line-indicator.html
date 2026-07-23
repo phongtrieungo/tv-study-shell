@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 2.3 Study Guide: EPG Now-line Indicator</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --now: #f87171;
+        --focus: #fbbf24;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      .swatch {
+        display: inline-block;
+        width: 0.85rem;
+        height: 0.85rem;
+        vertical-align: -0.1rem;
+        margin-right: 0.25rem;
+        border-radius: 2px;
+      }
+
+      .swatch-now {
+        background: var(--now);
+      }
+
+      .swatch-focus-time {
+        background: rgba(125, 211, 252, 0.7);
+        width: 0.2rem;
+        height: 0.95rem;
+      }
+
+      .swatch-focus-cell {
+        border: 2px solid var(--focus);
+        background: #4a5d7a;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 2.3 · FR-6 / AD-5</p>
+        <h1>EPG · Now-line as separated chrome</h1>
+        <p>
+          The now-line is <strong>chrome</strong>, not another program cell. Clock ticks move a thin
+          overlay; focus / resize / detail still dirty the Canvas grid. That split is the interview
+          point (AD-5): update current time without rebuilding the logical 600-cell model.
+        </p>
+      </header>
+
+      <section>
+        <h2>Mental model</h2>
+        <ol>
+          <li>
+            <strong>Chrome vs cells</strong> — Program cells encode schedule data. The now-line encodes
+            “where is demo time on this scale?” Same ms→px formula as cells; different update owner.
+          </li>
+          <li>
+            <strong>Two dirty paths</strong> — Grid dirty: focus, Visible Window, resize, detail →
+            <code>programsInVisibleWindow</code> + Canvas paint. Clock dirty: timer tick → update
+            <code>demoNowMs</code> + reposition DOM overlay. No fixture rebuild on ticks.
+          </li>
+          <li>
+            <strong>Demo clock</strong> — Fixtures freeze
+            <code>2026-07-22T00:00:00.000Z</code> for 24h. Raw <code>Date.now()</code> sits outside
+            that day, so the line would never show. Seed with
+            <code>dayStart + (wallMs % scheduleMs)</code>, then <strong>accelerate</strong>
+            (~60s of schedule per 1s wall tick) so learners can see drift. Production EPGs are usually
+            30–60s / minute-aligned and 1× realtime — say that out loud.
+          </li>
+          <li>
+            <strong>Hide, don’t chase</strong> — If demo-now is outside the Visible Window time range,
+            hide the line. No continuous jump-to-now. Mount <em>seeds</em> focus near demo-now once so
+            the line is visible (demo convenience, not a user jump-to-now control).
+          </li>
+        </ol>
+        <pre>mount
+  demoNow = dayStart + (Date.now() % 24h)
+  seed focus ≈ demoNow (once — demo convenience)
+  setInterval(1s) ────────────────────────┐
+                                          │
+tick ──► demoNow += ~60s schedule (wrap)  │  NO programsInVisibleWindow
+     ──► left px vs canvas box            │  NO fixture rebuild
+     ──► HUD “now … · model stable”       │
+                                          │
+focus / resize / detail ──► RAF paint ────┘
+                         ──► filter Visible Window programs
+                         ──► draw cells + amber + cyan cursor
+                         ──► also re-sync now-line
+
+leave Surface ──► clearInterval + remove listeners (AD-6)</pre>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            <span class="swatch swatch-now" aria-hidden="true"></span>
+            <strong>Distinct affordance</strong> — soft-red 2px + “NOW” label. Do not confuse with
+            <span class="swatch swatch-focus-time" aria-hidden="true"></span> cyan focus-time cursor
+            or <span class="swatch swatch-focus-cell" aria-hidden="true"></span> amber focus cell.
+          </li>
+          <li>
+            <strong>Same scale</strong> —
+            <code>nowX = gutter + ((nowMs − window.timeStart) / MS_PER_HOUR) * pxPerHour</code>.
+            If the formula drifts from cells, the line lies.
+          </li>
+          <li>
+            <strong>Why DOM overlay?</strong> Interview-strong: ticks never touch Canvas. Android TV
+            Live TV’s ProgramGuide similarly repositions a current-time indicator on a Handler tick
+            without rebuilding program rows.
+          </li>
+          <li>
+            <strong>AD-6</strong> — Timer is a Surface side effect. Clear on unmount; include it in
+            <code>hasActiveSideEffects()</code> so Shell cleanup probes stay honest (memory soak later).
+          </li>
+          <li>
+            <strong>Teaching vs production tick</strong> — Lab ticks every ~1s and advances ~60s of
+            schedule so the line visibly drifts. Production EPGs often tick every 30–60s or minute-align
+            at 1× wall time. Honesty: accelerated demo clock ≠ live airtime.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Demo script (desktop proxy)</h2>
+        <ol>
+          <li>Shell → <strong>EPG</strong> → Enter. Red NOW line should appear (focus seeded near demo-now once).</li>
+          <li>Wait 1–2 seconds — HUD <code>ticks</code> increments; line visibly drifts (~60×); <code>model stable</code>.</li>
+          <li>←→ / ↑↓ — amber focus + cyan cursor move; grid repaints; now-line stays a separate layer.</li>
+          <li>Enter / Back — detail layering unchanged from 2.2.</li>
+          <li>Back to menu — status should show side effects cleared; remount restarts the timer.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>API shape to remember</h2>
+        <ul>
+          <li>
+            <code>demoNowMs(dayStartMs, scheduleMs, wallMs?)</code> — remap wall into fixture day.
+          </li>
+          <li>
+            <code>nowXPx(nowMs, window, gutterPx, pxPerHour, msPerHour)</code> — returns
+            <code>null</code> outside the Visible Window (caller hides chrome).
+          </li>
+          <li>
+            Overlay: <code>data-testid="epg-now-line"</code> under <code>.epg-canvas__stage</code>
+            (Playwright later in 7.2).
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Not live schedule sync, OEM EPG, or broadcast “wall clock” truth — mock fixtures only.</li>
+          <li>Accelerated demo clock (~60×) and one-shot focus seed near demo-now are teaching aids — not production jump-to-now or realtime airtime.</li>
+          <li>Jump-to-now control / continuous auto-scroll deferred; Perf Note FPS write-up is Story <strong>2.4</strong>.</li>
+          <li>Desktop Chromium + keyboard proxy ≠ Tizen/webOS remote timing or TV heap truth.</li>
+          <li>Vitest for now-line helpers lands in Epic 7 — keep helpers pure.</li>
+        </ul>
+        <p class="muted">
+          Next in Epic 2: Story 2.4 EPG Perf Note (<code>docs/perf-notes/epg.md</code>).
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.2 EPG focus + program select)
+Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.3 EPG now-line indicator)
 
 ## Product
 
@@ -34,7 +34,8 @@ Generated: 2026-07-22 · Updated: 2026-07-23 (Story 2.2 EPG focus + program sele
 - Story 1.4: [Surface host mount/unmount contract](study/epic-1/1-4-surface-host-mount-unmount-contract.html)
 - Story 2.1: [EPG canvas Visible Window math](study/epic-2/2-1-epg-canvas-visible-window-math.html)
 - Story 2.2: [EPG D-pad focus and program select](study/epic-2/2-2-epg-dpad-focus-and-program-select.html)
+- Story 2.3: [EPG now-line indicator](study/epic-2/2-3-epg-now-line-indicator.html)
 
 ## Next implementation step
 
-Run `bmad-create-story` for **2.3 EPG now-line indicator** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.
+Run `bmad-create-story` for **2.4 EPG Perf Note** (then `bmad-dev-story`). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md). After Epic 2, prioritize **Epic 3 WebGL Lab** for interview GPU depth.

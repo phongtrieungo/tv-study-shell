@@ -1,6 +1,6 @@
 /**
- * Canvas EPG Surface — Visible Window + D-pad focus / program detail
- * (Stories 2.1–2.2 / FR-4–FR-5 / AD-4–AD-6).
+ * Canvas EPG Surface — Visible Window, D-pad focus / detail, now-line chrome
+ * (Stories 2.1–2.3 / FR-4–FR-6 / AD-4–AD-6).
  * Mount context shape matches Shell `SurfaceMountContext` structurally.
  */
 
@@ -17,20 +17,26 @@ import {
 } from '@tvshell/shared';
 import { createDetailPanel, type DetailPanel } from './detail.js';
 import { adjacentProgramFocusTime, findProgramAt } from './focus.js';
-import { drawEpgGrid, viewportFromStage } from './render.js';
+import { demoNowMs, nowXPx } from './now-line.js';
+import { drawEpgGrid, MS_PER_HOUR, viewportFromStage, type EpgLayout } from './render.js';
 
-const MS_PER_HOUR = 60 * 60 * 1000;
 const FALLBACK_STAGE_W = 640;
 const FALLBACK_STAGE_H = 360;
+/** Teaching tick — production EPGs often use 30–60s / minute-aligned updates. */
+const NOW_LINE_TICK_MS = 1000;
+/** Schedule ms advanced per teaching tick (~60× realtime) so the line visibly drifts. */
+const DEMO_SCHEDULE_MS_PER_TICK = 60 * 1000;
 
 const dayStartMs = Date.parse(fixtureMeta.dayStart);
-const dayEndMs = dayStartMs + fixtureMeta.scheduleHoursPerChannel * MS_PER_HOUR;
+const scheduleMs = fixtureMeta.scheduleHoursPerChannel * MS_PER_HOUR;
+const dayEndMs = dayStartMs + scheduleMs;
 const logicalCells = countLogicalProgramCells(fixtureMeta.programCount);
 
 let hostEl: HTMLElement | null = null;
 let stageEl: HTMLElement | null = null;
 let canvasEl: HTMLCanvasElement | null = null;
 let hudEl: HTMLElement | null = null;
+let nowLineEl: HTMLElement | null = null;
 let detailPanel: DetailPanel | null = null;
 let detailOpen = false;
 /** After Back dismisses detail, swallow Back repeats until keyup (AD-4). */
@@ -41,6 +47,11 @@ let onKey: ((event: KeyboardEvent) => void) | null = null;
 let onKeyUp: ((event: KeyboardEvent) => void) | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let rafId: number | null = null;
+let nowTimer: ReturnType<typeof setInterval> | null = null;
+let demoNow = dayStartMs;
+let nowTickCount = 0;
+let lastDrawnCells = 0;
+let loggedFirstVisibleNow = false;
 let focusChannelIndex = 0;
 let focusTimeMs = dayStartMs;
 let lastLoggedWindowKey = '';
@@ -87,6 +98,13 @@ function openDetail(program: Program): void {
   });
 }
 
+function clearNowTimer(): void {
+  if (nowTimer != null) {
+    clearInterval(nowTimer);
+    nowTimer = null;
+  }
+}
+
 function disposeSideEffects(): void {
   if (onKey) {
     // Must match addEventListener(..., true) or the capture listener leaks and steals menu arrows.
@@ -105,6 +123,7 @@ function disposeSideEffects(): void {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
+  clearNowTimer();
   detailOpen = false;
   ignoreBackUntilKeyup = false;
   noProgramFlash = false;
@@ -158,11 +177,88 @@ function updateHud(window: VisibleWindow, drawnCells: number): void {
     : `focus ch ${focusChannelIndex + 1} @ ${formatTime(focusTimeMs)}`;
   const detailLabel = detailOpen ? ' · detail open' : '';
   const flashLabel = noProgramFlash ? ' · no program at focus' : '';
+  const nowLabel = `now ${formatTime(demoNow)} UTC · ticks ${nowTickCount} · model stable`;
   hudEl.textContent =
     `drawn ${drawnCells} ≪ logical ${logicalCells} · ` +
     `ch ${window.channelStart + 1}–${window.channelEnd} / ${channels.length} · ` +
     `time ${formatTime(window.timeStartMs)}–${formatTime(window.timeEndMs)} UTC · ` +
-    `${focusLabel}${detailLabel}${flashLabel}`;
+    `${focusLabel}${detailLabel}${flashLabel} · ${nowLabel}`;
+}
+
+/**
+ * Reposition DOM now-line chrome from current demo time + Visible Window.
+ * Clock ticks call this without `programsInVisibleWindow` / grid rebuild.
+ */
+function positionNowLineOverlay(window: VisibleWindow, layout: EpgLayout): void {
+  if (!nowLineEl) {
+    return;
+  }
+
+  const x = nowXPx(
+    demoNow,
+    window,
+    layout.gutterPx,
+    layout.pxPerHour,
+    MS_PER_HOUR,
+  );
+
+  if (x == null || !Number.isFinite(x) || layout.canvasW <= 0 || x < layout.gutterPx || x > layout.canvasW) {
+    nowLineEl.hidden = true;
+    return;
+  }
+
+  nowLineEl.hidden = false;
+  // Position against the canvas box (not raw stage %) so border/stretch stay aligned with cells.
+  const canvas = canvasEl;
+  if (canvas && canvas.clientWidth > 0) {
+    const leftPx = (x / layout.canvasW) * canvas.clientWidth + canvas.offsetLeft;
+    nowLineEl.style.left = `${leftPx}px`;
+    nowLineEl.style.top = `${canvas.offsetTop}px`;
+    nowLineEl.style.height = `${canvas.clientHeight}px`;
+  } else {
+    const pct = (x / layout.canvasW) * 100;
+    nowLineEl.style.left = `${pct}%`;
+    nowLineEl.style.top = '0';
+    nowLineEl.style.height = '100%';
+  }
+
+  if (!loggedFirstVisibleNow) {
+    loggedFirstVisibleNow = true;
+    console.info('[epg] now-line visible', {
+      demoNowMs: demoNow,
+      demoNowUtc: new Date(demoNow).toISOString(),
+      nowX: x,
+      timeStartMs: window.timeStartMs,
+      timeEndMs: window.timeEndMs,
+    });
+  }
+}
+
+/** Layout + window math only — no fixture rebuild, no Visible Window program filter. */
+function syncNowLineChrome(): void {
+  syncViewportFromStage();
+  const { w, h } = measureStage();
+  const { layout } = viewportFromStage(w, h);
+  const window = currentWindow();
+  positionNowLineOverlay(window, layout);
+  updateHud(window, lastDrawnCells);
+}
+
+function tickNowLine(): void {
+  // Accelerate schedule time so learners see drift; honesty bounds document vs wall/production.
+  const offset = ((demoNow - dayStartMs + DEMO_SCHEDULE_MS_PER_TICK) % scheduleMs + scheduleMs) % scheduleMs;
+  demoNow = dayStartMs + offset;
+  nowTickCount += 1;
+  // Position overlay only — do not schedulePaint / rebuild logical model (AC #2).
+  syncNowLineChrome();
+}
+
+function startNowLineTimer(): void {
+  clearNowTimer();
+  demoNow = demoNowMs(dayStartMs, scheduleMs);
+  nowTickCount = 0;
+  loggedFirstVisibleNow = false;
+  nowTimer = setInterval(tickNowLine, NOW_LINE_TICK_MS);
 }
 
 function paint(): void {
@@ -208,14 +304,15 @@ function paint(): void {
     layout,
   });
 
-  const drawnCells = visiblePrograms.length;
-  updateHud(window, drawnCells);
+  lastDrawnCells = visiblePrograms.length;
+  positionNowLineOverlay(window, layout);
+  updateHud(window, lastDrawnCells);
 
   const key = windowKey(window);
   if (key !== lastLoggedWindowKey) {
     lastLoggedWindowKey = key;
     console.info('[epg] visible window', {
-      drawnCells,
+      drawnCells: lastDrawnCells,
       logicalCells,
       channelStart: window.channelStart,
       channelEnd: window.channelEnd,
@@ -290,8 +387,12 @@ export function mount(
 
   hostEl = host;
   focusChannelIndex = 0;
-  focusTimeMs = dayStartMs;
+  // Seed focus near demo-now so the line is visible on mount (demo convenience — not a jump-to-now control).
+  demoNow = demoNowMs(dayStartMs, scheduleMs);
+  focusTimeMs = demoNow;
+  clampFocus();
   lastLoggedWindowKey = '';
+  lastDrawnCells = 0;
   detailOpen = false;
   ignoreBackUntilKeyup = false;
   noProgramFlash = false;
@@ -301,18 +402,18 @@ export function mount(
   root.dataset.testid = 'epg-canvas';
 
   const title = document.createElement('h2');
-  title.textContent = 'EPG — Focus & Select';
+  title.textContent = 'EPG — Focus, Select & Now-line';
 
   const hint = document.createElement('p');
   hint.className = 'epg-canvas__hint';
   hint.textContent =
-    '↑↓ channels · ←→ jump programs · Enter opens detail · Back closes detail, then returns to the menu. Only the Visible Window is drawn.';
+    'Red NOW line = accelerated demo clock (fixture-day remap; ~60× so it drifts) · focus opens near demo-now (not jump-to-now) · ↑↓ channels · ←→ programs · Enter detail · Back closes detail, then menu. Grid redraws on focus/resize — ticks move chrome only.';
 
   const hud = document.createElement('p');
   hud.className = 'epg-canvas__hud';
   hud.dataset.testid = 'epg-hud';
   hud.setAttribute('role', 'status');
-  hud.setAttribute('aria-live', 'polite');
+  // No aria-live: 1s ticks would spam assistive tech; status is for sighted HUD / future Playwright.
 
   const stage = document.createElement('div');
   stage.className = 'epg-canvas__stage';
@@ -323,16 +424,27 @@ export function mount(
   canvas.dataset.testid = 'epg-grid';
   canvas.setAttribute('aria-label', 'Electronic Program Guide grid');
 
+  const nowLine = document.createElement('div');
+  nowLine.className = 'epg-canvas__now-line';
+  nowLine.dataset.testid = 'epg-now-line';
+  nowLine.setAttribute('aria-hidden', 'true');
+  nowLine.hidden = true;
+  const nowLabel = document.createElement('span');
+  nowLabel.className = 'epg-canvas__now-line-label';
+  nowLabel.textContent = 'NOW';
+  nowLine.append(nowLabel);
+
   const detail = createDetailPanel();
 
-  // Detail overlays the stage so opening it does not shrink the Visible Window.
-  stage.append(canvas, detail.root);
+  // Canvas + now-line chrome + detail overlay; now-line ticks do not shrink/redraw the grid.
+  stage.append(canvas, nowLine, detail.root);
   root.append(title, hint, hud, stage);
   host.replaceChildren(root);
 
   stageEl = stage;
   canvasEl = canvas;
   hudEl = hud;
+  nowLineEl = nowLine;
   detailPanel = detail;
 
   onKeyUp = () => {
@@ -396,8 +508,15 @@ export function mount(
   });
   resizeObserver.observe(stage);
 
+  startNowLineTimer();
   schedulePaint();
-  console.info('[epg] mount', { surfaceId: ctx?.surfaceId ?? null, logicalCells });
+  console.info('[epg] mount', {
+    surfaceId: ctx?.surfaceId ?? null,
+    logicalCells,
+    nowLineTickMs: NOW_LINE_TICK_MS,
+    demoAccelScheduleMsPerTick: DEMO_SCHEDULE_MS_PER_TICK,
+    demoClock: 'seed dayStart+(wall%schedule); ticks advance schedule ~60×',
+  });
 }
 
 export function unmount(): void {
@@ -409,13 +528,23 @@ export function unmount(): void {
   stageEl = null;
   canvasEl = null;
   hudEl = null;
+  nowLineEl = null;
   detailPanel = null;
   detailOpen = false;
   lastLoggedWindowKey = '';
+  lastDrawnCells = 0;
+  nowTickCount = 0;
+  loggedFirstVisibleNow = false;
   console.info('[epg] unmount');
 }
 
-/** Smoke/console proof that AD-6 cleanup ran. */
+/** Smoke/console proof that AD-6 cleanup ran (listeners, RAF, ResizeObserver, now-line timer). */
 export function hasActiveSideEffects(): boolean {
-  return onKey != null || onKeyUp != null || rafId != null || resizeObserver != null;
+  return (
+    onKey != null ||
+    onKeyUp != null ||
+    rafId != null ||
+    resizeObserver != null ||
+    nowTimer != null
+  );
 }

@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, and Enter program detail (`packages/epg-canvas`). Home / Live / WebGL Lab still use the stub until Epics 3–5. See [docs/index.md](docs/index.md).  
+> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, and a separated demo now-line (`packages/epg-canvas`). Home / Live / WebGL Lab still use the stub until Epics 3–5. See [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -74,7 +74,7 @@ pnpm dev
 
 Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Home / Live / WebGL Lab still mount the stub. Story **2.3–2.4** add now-line and Perf Note; Story **6.2** Memory Soak validates cleanup across real Surfaces.
+Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Home / Live / WebGL Lab still mount the stub. Story **2.4** adds the EPG Perf Note; Story **6.2** Memory Soak validates cleanup across real Surfaces.
 
 ## Testing (UT / E2E / Emulator)
 
