@@ -1,5 +1,10 @@
 # Deferred Work
 
+## Deferred from: code review of 2-3-epg-now-line-indicator.md (2026-07-23)
+
+- Automated tests for `demoNowMs` / `nowXPx` — cover under Story 7.1 Vitest (story explicitly defers UT).
+- Inject clock / `wallMs` at Surface boundary for deterministic “time advances → line moves” smoke — Epic 7 ladder / later host test seams.
+
 ## Deferred from: code review of 2-2-epg-dpad-focus-and-program-select.md (2026-07-23)
 
 - Overlapping programs can stick ←→ neighbor nav (`adjacentProgramFocusTime`): if neighbor `startMs` still lies inside the current program’s `[start, end)`, focus time never advances. Current fixtures are contiguous non-overlapping blocks — harden if/when fixtures allow overlaps (or cover in Epic 7).
