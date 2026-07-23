@@ -1,6 +1,7 @@
 import { getDpadAction } from '@tvshell/shared';
 import * as epgCanvas from '@tvshell/epg-canvas';
 import * as surfaceStub from '@tvshell/surface-stub';
+import * as webglLab from '@tvshell/webgl-lab';
 import { renderChrome } from './chrome/render-chrome.js';
 import { createSurfaceHost } from './host/surface-host.js';
 import type { SurfaceModule, SurfaceRegistry } from './host/types.js';
@@ -27,19 +28,24 @@ const epgModule: SurfaceModule = {
   unmount: epgCanvas.unmount,
 };
 
-// Story 2.1: EPG → real canvas package; other destinations remain on the stub.
+const webglModule: SurfaceModule = {
+  mount: webglLab.mount,
+  unmount: webglLab.unmount,
+};
+
+// EPG + WebGL Lab are real; Home / Live remain on the stub until Epics 4–5.
 const registry = {
   home: stubModule,
   live: stubModule,
   epg: epgModule,
-  'webgl-lab': stubModule,
+  'webgl-lab': webglModule,
 } as const satisfies SurfaceRegistry;
 
 const probeBySurface: Record<SurfaceId, () => boolean> = {
   home: surfaceStub.hasActiveSideEffects,
   live: surfaceStub.hasActiveSideEffects,
   epg: epgCanvas.hasActiveSideEffects,
-  'webgl-lab': surfaceStub.hasActiveSideEffects,
+  'webgl-lab': webglLab.hasActiveSideEffects,
 };
 
 /** Kept across leave so cleanupProbe still matches the Surface that just unmounted. */
@@ -109,7 +115,7 @@ window.addEventListener(
       if (action === 'back') {
         void host.leave();
       }
-      // EPG owns arrows via its own capture listener; stub ignores them.
+      // EPG / WebGL Lab own arrows via capture listeners; stub ignores them.
       return;
     }
 
@@ -152,5 +158,5 @@ if (import.meta.hot) {
 console.info('[shell] chrome ready', {
   surfaces: SURFACE_MENU.map((item) => item.id),
   focused: focus.getFocusedId(),
-  host: 'epg → @tvshell/epg-canvas; others → surface-stub',
+  host: 'epg → @tvshell/epg-canvas; webgl-lab → @tvshell/webgl-lab; home/live → surface-stub',
 });

@@ -8,6 +8,11 @@ export default defineConfig({
   },
   // Keep workspace TS source out of dep prebundle so HMR sees shared changes.
   optimizeDeps: {
-    exclude: ['@tvshell/shared', '@tvshell/surface-stub', '@tvshell/epg-canvas'],
+    exclude: [
+      '@tvshell/shared',
+      '@tvshell/surface-stub',
+      '@tvshell/epg-canvas',
+      '@tvshell/webgl-lab',
+    ],
   },
 });

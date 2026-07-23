@@ -12,7 +12,8 @@
   "dependencies": {
     "@tvshell/epg-canvas": "workspace:*",
     "@tvshell/shared": "workspace:*",
-    "@tvshell/surface-stub": "workspace:*"
+    "@tvshell/surface-stub": "workspace:*",
+    "@tvshell/webgl-lab": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.9.3",

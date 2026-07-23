@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 3.1 Study Guide: WebGL Lab Textured Visible Window</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(1080px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      .flow-note {
+        font-size: 0.95rem;
+        color: var(--muted);
+        margin: 0 0 1rem;
+      }
+
+      .diagram {
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+        margin: 0 0 1.25rem;
+      }
+
+      .diagram svg {
+        display: block;
+        margin: 0 auto;
+        min-width: 920px;
+      }
+
+      .diagram-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin: 0 0 1rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .diagram-legend span::before {
+        content: "";
+        display: inline-block;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 3px;
+        margin-right: 0.4rem;
+        vertical-align: -0.05rem;
+      }
+
+      .lg-boot::before {
+        background: #38bdf8;
+      }
+
+      .lg-cpu::before {
+        background: #a78bfa;
+      }
+
+      .lg-gpu::before {
+        background: #fbbf24;
+      }
+
+      .lg-input::before {
+        background: #34d399;
+      }
+
+      .callout {
+        border-left: 3px solid var(--accent-2);
+        padding: 0.35rem 0 0.35rem 1rem;
+        margin: 0.75rem 0;
+        color: var(--muted);
+      }
+
+      .callout strong {
+        color: var(--text);
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 0.5rem 0.65rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 3.1 · assume zero prior WebGL</p>
+        <h1>WebGL Lab · Textured Visible Window</h1>
+        <p>
+          Canvas EPG already taught <strong>virtualization</strong>. Interviewers still ask for
+          <strong>GPU pipeline vocabulary</strong> — buffers, textures, shaders, draw calls — and what
+          Lightning/Blits abstracts. Lab W closes that gap with the <em>same</em> Visible Window math on
+          raw WebGL. See <code>docs/webgl-investment.md</code>.
+        </p>
+      </header>
+
+      <section>
+        <h2>Why Lab W exists</h2>
+        <ul>
+          <li>
+            <strong>Canvas alone</strong> proves you can window a big guide — it does not prove you can
+            talk about the GPU.
+          </li>
+          <li>
+            <strong>Blits/Lightning</strong> is production-shaped WebGL, but the scene graph can hide the
+            metal until FPS dies and you cannot debug.
+          </li>
+          <li>
+            <strong>Raw WebGL Lab</strong> lets you say: “I virtualized an EPG in Canvas, then rendered the
+            same Visible Window idea with WebGL textures and draw calls.”
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Pipeline map (what each word means here)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Concept</th>
+              <th>In this lab</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Context</strong></td>
+              <td>
+                <code>getContext('webgl2')</code> with <code>webgl</code> fallback — not
+                <code>getContext('2d')</code>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Buffer (VBO)</strong></td>
+              <td>
+                GPU memory for vertex data — positions + UVs + focus flag, uploaded with
+                <code>bufferData</code>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Texture</strong></td>
+              <td>
+                Color atlas uploaded via <code>texImage2D</code> (fixtures have no poster URLs — we generate
+                solid tiles)
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Shader / program</strong></td>
+              <td>
+                Tiny GLSL vertex + fragment shaders compiled/linked into a <code>WebGLProgram</code>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Draw call</strong></td>
+              <td>
+                One batched <code>drawArrays(TRIANGLES, …)</code> for Visible Window quads only
+              </td>
+            </tr>
+            <tr>
+              <td><strong>Dispose</strong></td>
+              <td>
+                <code>deleteBuffer</code> / <code>deleteTexture</code> / <code>deleteProgram</code> on
+                unmount — VRAM is not JS GC
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <pre>shared computeVisibleWindow()
+        ↓
+programsInVisibleWindow()     ← same as EPG (AD-9)
+        ↓
+build textured quads (atlas UVs)
+        ↓
+upload VBO → useProgram → drawArrays
+        ↓
+HUD: drawn ≪ logical 600</pre>
+      </section>
+
+      <section>
+        <h2>End-to-end process diagram (this lab)</h2>
+        <p class="flow-note">
+          Read top → bottom. Files live under <code>packages/webgl-lab/src/</code> unless noted.
+          Tiles look like “buttons,” but they are <strong>GPU quads</strong> — there is no
+          <code>&lt;button&gt;</code> / focusable DOM node per program.
+        </p>
+
+        <div class="diagram-legend">
+          <span class="lg-boot">Bootstrap (once on mount)</span>
+          <span class="lg-cpu">CPU / JS state</span>
+          <span class="lg-gpu">GPU commands</span>
+          <span class="lg-input">D-pad input</span>
+        </div>
+
+        <div class="diagram" aria-label="WebGL Lab bootstrap, render, and input flow">
+          <svg viewBox="0 0 1000 1180" width="100%" role="img">
+            <title>WebGL Lab process: bootstrap, paint, input, GPU draw</title>
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa4b2" />
+              </marker>
+              <filter id="soft" x="-5%" y="-5%" width="110%" height="110%">
+                <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-opacity="0.35" />
+              </filter>
+            </defs>
+
+            <!-- Shell entry -->
+            <rect x="280" y="16" width="440" height="56" rx="10" fill="#1a2332" stroke="#38bdf8" stroke-width="2" filter="url(#soft)" />
+            <text x="500" y="40" text-anchor="middle" fill="#7dd3fc" font-size="14" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="600">1. Shell mounts Surface</text>
+            <text x="500" y="58" text-anchor="middle" fill="#9aa4b2" font-size="12" font-family="ui-monospace, monospace">apps/shell → registry['webgl-lab'].mount(host)</text>
+
+            <line x1="500" y1="72" x2="500" y2="98" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- Bootstrap box -->
+            <rect x="40" y="100" width="920" height="250" rx="14" fill="#121820" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="5 4" />
+            <text x="60" y="124" fill="#38bdf8" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="700">2. BOOTSTRAP (once) — index.ts · mount()</text>
+
+            <rect x="60" y="140" width="200" height="70" rx="8" fill="#1e293b" stroke="#38bdf8" />
+            <text x="160" y="168" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">DOM chrome</text>
+            <text x="160" y="188" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">index.ts</text>
+            <text x="160" y="202" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">&lt;canvas&gt; + HUD text</text>
+
+            <rect x="280" y="140" width="200" height="70" rx="8" fill="#1e293b" stroke="#38bdf8" />
+            <text x="380" y="168" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">Acquire GL context</text>
+            <text x="380" y="188" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">gl.ts · acquireContext</text>
+            <text x="380" y="202" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">webgl2 → fallback webgl</text>
+
+            <rect x="500" y="140" width="200" height="70" rx="8" fill="#1e293b" stroke="#38bdf8" />
+            <text x="600" y="168" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">Compile shaders</text>
+            <text x="600" y="188" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">shaders.ts</text>
+            <text x="600" y="202" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">createShaderProgram()</text>
+
+            <rect x="720" y="140" width="220" height="70" rx="8" fill="#1e293b" stroke="#38bdf8" />
+            <text x="830" y="168" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">GPU resources</text>
+            <text x="830" y="188" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">texture.ts · render.ts</text>
+            <text x="830" y="202" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">atlas texImage2D + VBO</text>
+
+            <line x1="160" y1="210" x2="160" y2="240" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="380" y1="210" x2="380" y2="240" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="600" y1="210" x2="600" y2="240" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="830" y1="210" x2="830" y2="240" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="160" y1="240" x2="830" y2="240" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="500" y1="240" x2="500" y2="260" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <rect x="300" y="262" width="400" height="68" rx="8" fill="#1e293b" stroke="#34d399" />
+            <text x="500" y="288" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">Wire listeners + schedule first paint</text>
+            <text x="500" y="308" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">index.ts: keydown capture · ResizeObserver · requestAnimationFrame(paint)</text>
+
+            <line x1="500" y1="350" x2="500" y2="378" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- Paint loop -->
+            <rect x="40" y="380" width="920" height="320" rx="14" fill="#16121f" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5 4" />
+            <text x="60" y="404" fill="#a78bfa" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="700">3. PAINT LOOP (every frame after input / resize) — index.ts · paint()</text>
+
+            <rect x="60" y="420" width="270" height="88" rx="8" fill="#2a2140" stroke="#a78bfa" />
+            <text x="195" y="448" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">A. Layout + Visible Window</text>
+            <text x="195" y="468" text-anchor="middle" fill="#c4b5fd" font-size="11" font-family="ui-monospace, monospace">render.ts · viewportFromStage</text>
+            <text x="195" y="486" text-anchor="middle" fill="#c4b5fd" font-size="11" font-family="ui-monospace, monospace">shared · computeVisibleWindow</text>
+
+            <rect x="360" y="420" width="280" height="88" rx="8" fill="#2a2140" stroke="#a78bfa" />
+            <text x="500" y="448" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">B. Filter draw list</text>
+            <text x="500" y="468" text-anchor="middle" fill="#c4b5fd" font-size="11" font-family="ui-monospace, monospace">shared · programsInVisibleWindow</text>
+            <text x="500" y="486" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">only intersecting programs (≪ 600)</text>
+
+            <rect x="670" y="420" width="270" height="88" rx="8" fill="#2a2140" stroke="#a78bfa" />
+            <text x="805" y="448" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">C. Call GPU renderer</text>
+            <text x="805" y="468" text-anchor="middle" fill="#c4b5fd" font-size="11" font-family="ui-monospace, monospace">render.ts · drawVisibleWindow</text>
+            <text x="805" y="486" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">build quads → upload → draw</text>
+
+            <line x1="195" y1="508" x2="195" y2="530" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="500" y1="508" x2="500" y2="530" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="805" y1="508" x2="805" y2="530" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="195" y1="530" x2="805" y2="530" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="500" y1="530" x2="500" y2="552" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- GPU command block - highlighted -->
+            <rect x="120" y="555" width="760" height="128" rx="10" fill="#2a2110" stroke="#fbbf24" stroke-width="2.5" filter="url(#soft)" />
+            <text x="500" y="580" text-anchor="middle" fill="#fbbf24" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="700">4. GPU DRAW COMMAND — the metal (inside drawVisibleWindow)</text>
+            <text x="500" y="602" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-monospace, monospace">gl.useProgram → bindTexture → bufferData(VBO) → vertexAttribPointer</text>
+            <text x="500" y="624" text-anchor="middle" fill="#fbbf24" font-size="14" font-family="ui-monospace, monospace" font-weight="700">gl.drawArrays(gl.TRIANGLES, 0, vertexCount)</text>
+            <text x="500" y="648" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif">This is the single batched draw call that tells the GPU to rasterize Visible Window tiles</text>
+            <text x="500" y="666" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-monospace, monospace">File: packages/webgl-lab/src/render.ts  (~line drawArrays)</text>
+
+            <line x1="500" y1="700" x2="500" y2="728" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <!-- Input loop -->
+            <rect x="40" y="730" width="920" height="280" rx="14" fill="#0f1f1a" stroke="#34d399" stroke-width="1.5" stroke-dasharray="5 4" />
+            <text x="60" y="754" fill="#34d399" font-size="13" font-family="ui-sans-serif, system-ui, sans-serif" font-weight="700">5. INPUT → FOCUS STATE → REPAINT (not DOM button focus)</text>
+
+            <rect x="60" y="770" width="280" height="100" rx="8" fill="#143028" stroke="#34d399" />
+            <text x="200" y="798" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">Listen</text>
+            <text x="200" y="818" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="ui-monospace, monospace">index.ts · window keydown</text>
+            <text x="200" y="836" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">capture: true</text>
+            <text x="200" y="852" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-monospace, monospace">shared · getDpadAction</text>
+
+            <rect x="360" y="770" width="280" height="100" rx="8" fill="#143028" stroke="#34d399" />
+            <text x="500" y="798" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">Mutate focus (JS only)</text>
+            <text x="500" y="818" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="ui-monospace, monospace">handleAction() in index.ts</text>
+            <text x="500" y="836" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">↑↓ → focusChannelIndex</text>
+            <text x="500" y="852" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">←→ → focusTimeMs ± 2h</text>
+
+            <rect x="660" y="770" width="280" height="100" rx="8" fill="#143028" stroke="#34d399" />
+            <text x="800" y="798" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">React = schedulePaint</text>
+            <text x="800" y="818" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="ui-monospace, monospace">requestAnimationFrame(paint)</text>
+            <text x="800" y="836" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">recompute window → redraw quads</text>
+            <text x="800" y="852" text-anchor="middle" fill="#9aa4b2" font-size="10" font-family="ui-sans-serif, system-ui, sans-serif">focused tile gets a_focus=1 boost</text>
+
+            <line x1="200" y1="870" x2="200" y2="900" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="500" y1="870" x2="500" y2="900" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="800" y1="870" x2="800" y2="900" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="200" y1="900" x2="800" y2="900" stroke="#9aa4b2" stroke-width="1.5" />
+            <line x1="500" y1="900" x2="500" y2="920" stroke="#9aa4b2" stroke-width="2" marker-end="url(#arrow)" />
+
+            <rect x="180" y="924" width="640" height="68" rx="8" fill="#1e293b" stroke="#fbbf24" />
+            <text x="500" y="950" text-anchor="middle" fill="#e8ecf3" font-size="12" font-family="ui-sans-serif, system-ui, sans-serif">“Focused button” is a brighter textured quad — not HTML focus</text>
+            <text x="500" y="972" text-anchor="middle" fill="#9aa4b2" font-size="11" font-family="ui-sans-serif, system-ui, sans-serif">isFocus computed in render.ts → vertex attribute a_focus → fragment shader multiplies color</text>
+          </svg>
+        </div>
+
+        <h3>File → responsibility cheat sheet</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Role in the diagram</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>index.ts</code></td>
+              <td>
+                Orchestrator: <code>mount</code> / <code>unmount</code>, DOM shell + HUD, focus state,
+                keydown listener, <code>paint()</code> / <code>schedulePaint()</code>, calls into GL modules
+              </td>
+            </tr>
+            <tr>
+              <td><code>gl.ts</code></td>
+              <td>
+                <code>acquireContext</code>, resource registry, <code>disposeGpu</code>
+                (<code>deleteBuffer</code> / <code>deleteTexture</code> / <code>deleteProgram</code>)
+              </td>
+            </tr>
+            <tr>
+              <td><code>shaders.ts</code></td>
+              <td>GLSL vertex + fragment source, compile/link → <code>WebGLProgram</code></td>
+            </tr>
+            <tr>
+              <td><code>texture.ts</code></td>
+              <td>Build color atlas pixels → <code>texImage2D</code>; map <code>programId</code> → atlas UV cell</td>
+            </tr>
+            <tr>
+              <td><code>render.ts</code></td>
+              <td>
+                Layout math, build interleaved quads, <strong>issue GPU commands</strong> including
+                <code>drawArrays</code>
+              </td>
+            </tr>
+            <tr>
+              <td><code>@tvshell/shared</code></td>
+              <td>
+                <code>computeVisibleWindow</code>, <code>programsInVisibleWindow</code>, fixtures,
+                <code>getDpadAction</code>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>How “navigation” works without HTML buttons</h3>
+        <p class="callout">
+          <strong>Interview line:</strong> App-owned focus. The remote never focuses a DOM node inside the
+          grid. We keep two numbers in JS (<code>focusChannelIndex</code>, <code>focusTimeMs</code>), move them
+          on D-pad, then redraw so the matching program quad is brighter.
+        </p>
+        <ol>
+          <li>
+            <strong>No hit-testing DOM.</strong> Program cells are triangles in a VBO. There is nothing for
+            the browser to tab to.
+          </li>
+          <li>
+            <strong>Input path:</strong> <code>keydown</code> (capture) → <code>getDpadAction</code> →
+            <code>handleAction</code> updates focus → <code>schedulePaint</code>.
+          </li>
+          <li>
+            <strong>Back is Shell-owned:</strong> Lab ignores <code>back</code> so it bubbles to Shell
+            <code>host.leave()</code> → <code>unmount</code> → <code>disposeGpu</code>.
+          </li>
+          <li>
+            <strong>Visual focus:</strong> In <code>drawVisibleWindow</code>, if the program contains the
+            focus time on the focus channel, that quad’s <code>a_focus</code> is <code>1</code>; the fragment
+            shader boosts RGB. A thin focus-time cursor quad is also drawn.
+          </li>
+          <li>
+            <strong>Window follows focus:</strong> Changing focus re-runs <code>computeVisibleWindow</code>
+            (anchor center), so the Visible Window scrolls with you — still only drawing the intersecting
+            subset.
+          </li>
+        </ol>
+
+        <h3>Unmount (cleanup closes the loop)</h3>
+        <pre>Back / Shell leave
+  → index.ts unmount()
+  → remove keydown + ResizeObserver + cancel RAF
+  → gl.ts disposeGpu()   ← deleteBuffer / deleteTexture / deleteProgram / deleteShader
+  → hasActiveSideEffects() === false</pre>
+      </section>
+
+      <section>
+        <h2>Same math, different renderer</h2>
+        <ul>
+          <li>
+            EPG uses <code>CanvasRenderingContext2D</code> (CPU path, easy text/labels).
+          </li>
+          <li>
+            Lab uses <code>WebGLRenderingContext</code> / <code>WebGL2RenderingContext</code> (GPU path).
+          </li>
+          <li>
+            Both import <code>computeVisibleWindow</code> from <code>@tvshell/shared</code> — windowing is a
+            data problem; Canvas vs WebGL is a renderer choice.
+          </li>
+          <li>
+            Story <strong>3.2</strong> will measure both side-by-side; Story <strong>3.3</strong> deepens the
+            vocabulary write-up. This page is the pipeline practice story.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            <strong>Why not DOM cells?</strong> Same as EPG — thousands of nodes hurt TV Chromium. WebGL does
+            not magically virtualize; you still must draw only the Visible Window.
+          </li>
+          <li>
+            <strong>Why delete* on leave?</strong> Dropping JS references does not free GPU memory. Surface
+            leave must call <code>deleteBuffer</code> / <code>deleteTexture</code> / <code>deleteProgram</code>
+            (AD-6 / AD-9).
+          </li>
+          <li>
+            <strong>What Lightning abstracts:</strong> scene graph + WebGL (or Canvas fallback). Lab W is the
+            metal; Blits Home (Epic 4) is the applied scene graph — not a replacement for this package.
+          </li>
+          <li>
+            <strong>Input ownership:</strong> Shell Back → leave; Lab owns ↑↓←→ while mounted (capture
+            listener), same contract as EPG.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Demo script (desktop proxy)</h2>
+        <ol>
+          <li>Open Shell → focus <strong>WebGL Lab</strong> → Enter.</li>
+          <li>Confirm HUD: <code>drawn ≪ logical 600</code> and <code>context webgl2</code> (or webgl).</li>
+          <li>Hold ↑↓ / ←→ — window ranges change; textured tiles move; you never draw all 600.</li>
+          <li>Back — unmount; console cleanup probe should report no active side effects.</li>
+          <li>Remount; then check EPG still works (registry-swap only touched <code>webgl-lab</code>).</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>This is a <strong>learning lab</strong> (textured 2D UI tiles) — not a claim of graphics-engine expertise.</li>
+          <li>Desktop Chromium + keyboard D-pad ≠ OEM TV memory / GPU driver truth.</li>
+          <li>No Three.js here on purpose — the JD probe is pipeline literacy, not “I used a 3D framework.”</li>
+          <li>Context-loss recovery is awareness-level only; full rebuild frameworks are out of scope.</li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

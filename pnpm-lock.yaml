@@ -19,6 +19,9 @@ importers:
       '@tvshell/surface-stub':
         specifier: workspace:*
         version: link:../../packages/surface-stub
+      '@tvshell/webgl-lab':
+        specifier: workspace:*
+        version: link:../../packages/webgl-lab
     devDependencies:
       typescript:
         specifier: 5.9.3
@@ -44,6 +47,16 @@ importers:
         version: 5.9.3
 
   packages/surface-stub:
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/webgl-lab:
+    dependencies:
+      '@tvshell/shared':
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       typescript:
         specifier: 5.9.3

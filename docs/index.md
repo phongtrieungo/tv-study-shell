@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-23 (Epic 2 retrospective + synthesis)
+Generated: 2026-07-22 · Updated: 2026-07-23 (Story 3.1 WebGL Lab)
 
 ## Product
 
@@ -38,7 +38,8 @@ Generated: 2026-07-22 · Updated: 2026-07-23 (Epic 2 retrospective + synthesis)
 - Story 2.3: [EPG now-line indicator](study/epic-2/2-3-epg-now-line-indicator.html)
 - Story 2.4: [EPG Perf Note](study/epic-2/2-4-epg-perf-note.html)
 - Perf Note: [EPG measured draw / FPS](perf-notes/epg.md)
+- Story 3.1: [WebGL Lab textured Visible Window](study/epic-3/3-1-webgl-lab-textured-visible-window.html)
 
 ## Next implementation step
 
-Epic 2 is closed (retro + synthesis). Run `bmad-create-story` for **3.1 WebGL Lab textured Visible Window** — create-story must assume **zero WebGL experience** and include pipeline teaching context. Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).
+Story **3.1** shipped (`packages/webgl-lab` — raw WebGL textured Visible Window). Next: create-story / implement **3.2 Canvas vs WebGL Perf Note** (`docs/perf-notes/canvas-vs-webgl.md`). Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).

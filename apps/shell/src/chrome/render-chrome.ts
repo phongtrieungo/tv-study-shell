@@ -33,7 +33,7 @@ export function renderChrome(appRoot: HTMLElement): ShellChrome {
 
   const subtitle = document.createElement('p');
   subtitle.textContent =
-    'Safe Zone chrome + Surface menu. EPG mounts the Canvas Visible Window; Home / Live / WebGL Lab still use the stub. Back unmounts and returns here.';
+    'Safe Zone chrome + Surface menu. EPG (Canvas) and WebGL Lab (textured Visible Window) are live; Home / Live still use the stub. Back unmounts and returns here.';
 
   header.append(title, subtitle);
 
