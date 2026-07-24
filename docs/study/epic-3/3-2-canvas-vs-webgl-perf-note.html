@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 3.2 Study Guide: Canvas vs WebGL Perf Note</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --ok: #86efac;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        padding: 0.45rem 0.35rem;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 3.2 · FR-16 / AD-8</p>
+        <h1>Canvas vs WebGL · Side-by-side Perf Note</h1>
+        <p>
+          Same Visible Window idea, two renderers, <strong>one labeled machine</strong>. Interview proof
+          lives in <code>docs/perf-notes/canvas-vs-webgl.md</code> — not “WebGL always wins.”
+        </p>
+      </header>
+
+      <section>
+        <h2>Mental model</h2>
+        <ol>
+          <li>
+            <strong>Why compare</strong> (<code>docs/webgl-investment.md</code>) — Canvas teaches
+            virtualization; WebGL teaches the GPU pipeline. Blits/Lightning is applied WebGL later.
+            Measuring both closes the “I only used a framework” gap.
+          </li>
+          <li>
+            <strong>Same math, different renderer</strong> — both Surfaces import
+            <code>computeVisibleWindow</code> from <code>@tvshell/shared</code>. Windowing is a
+            <em>data</em> problem; Canvas 2D vs WebGL is a <em>renderer</em> choice.
+          </li>
+          <li>
+            <strong>AD-8</strong> — Perf Notes under <code>docs/perf-notes/</code> with browser / OS /
+            machine class labeled. README links them. Unlabeled FPS does not count.
+          </li>
+          <li>
+            <strong>Paint model</strong> — both coalesce paints on focus / resize (not a continuous
+            full-grid RAF loop). Idle compositor FPS ≈ display refresh; do not confuse that with
+            “we paint 120 grids per second.”
+          </li>
+        </ol>
+        <pre>shared VW math → drawn ≪ logical 600   ←── both Surfaces
+
+Canvas 2D path → many CPU 2D ops / paint
+WebGL path     → buffers + texture + shaders
+                 → 1× batched drawArrays / paint
+
+env labels required (browser / OS / machine)</pre>
+      </section>
+
+      <section>
+        <h2>How to measure (same session)</h2>
+        <ol>
+          <li>Run Shell → Menu → <strong>EPG</strong>.</li>
+          <li>Read HUD: <code>drawn N ≪ logical 600</code>. Arrow around; note the drawn band.</li>
+          <li>Back → Menu → <strong>WebGL Lab</strong>.</li>
+          <li>
+            Read HUD: <code>drawn N ≪ logical 600 · context webgl2|webgl</code>. Arrow around.
+          </li>
+          <li>
+            Optional: DevTools Command Menu → <strong>Show Rendering</strong> →
+            <strong>Frame rendering stats</strong>; optional CPU throttle 4×–6×
+            (<a href="../../testing-strategy.md">testing-strategy.md</a>).
+          </li>
+          <li>
+            Write / cite <code>docs/perf-notes/canvas-vs-webgl.md</code> with one shared Environment
+            block for both Surfaces.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            “Both Surfaces virtualize — on this laptop stage the HUD showed
+            <span class="ok">drawn 60 ≪ logical 600</span> for Canvas <em>and</em> WebGL.”
+          </li>
+          <li>
+            “WebGL’s Visible Window paint ends in <strong>one</strong> batched
+            <code>drawArrays</code>; Canvas pays many 2D ops. That is draw-call / CPU framing, not a
+            blanket FPS win.”
+          </li>
+          <li>
+            “I will not claim TV FPS from a MacBook without naming the proxy. Domain floor is ~30 FPS
+            UI; 60 is aspirational on entry hardware.”
+          </li>
+          <li>
+            “Next story (3.3) names the pipeline pieces — buffers, textures, shaders, draw calls —
+            using this lab as the example.”
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What the numbers prove vs don’t</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Proves</th>
+              <th>Does not prove</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Same VW math works on Canvas and WebGL</td>
+              <td>“WebGL is always faster on this laptop”</td>
+            </tr>
+            <tr>
+              <td>Virtualization discipline (drawn ≪ logical) on both paths</td>
+              <td>OEM TV memory / GC / GPU driver behavior</td>
+            </tr>
+            <tr>
+              <td>You measured both on a named browser/OS/machine</td>
+              <td>Store certification or DRM pipeline health</td>
+            </tr>
+            <tr>
+              <td>WebGL draw-call batching exists in this lab</td>
+              <td>Graphics-engine expertise or production scene-graph mastery</td>
+            </tr>
+            <tr>
+              <td>Idle rAF hits display refresh on a Pro laptop</td>
+              <td>That every keypress paints at 120 Hz forever</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Demo script</h2>
+        <ol>
+          <li>Open <code>docs/perf-notes/canvas-vs-webgl.md</code> — Environment + Results table.</li>
+          <li>Live: Shell → <strong>EPG</strong> → show HUD <code>drawn ≪ logical</code>.</li>
+          <li>Hold ↑↓ — window moves; drawn stays ≪ 600.</li>
+          <li>Back → <strong>WebGL Lab</strong> → show HUD + <code>context webgl2</code>.</li>
+          <li>Hold ↑↓/←→ — same virtualization story; mention one batched draw call.</li>
+          <li>Say the honesty line: desktop proxy, trade-offs not “GPU always wins.”</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Stage size changes drawn count (2.4’s smaller stage saw 20–30; this compare used ~1100×540 → 60).</li>
+          <li>EPG has now-line chrome + program-boundary ←→; WebGL Lab uses fixed 2h steps + atlas colors.</li>
+          <li>No Vitest/Playwright gate for this artifact (Epic 7); measurement is documented, not CI.</li>
+          <li>Do not invent a continuous grid RAF loop just to mint an FPS number.</li>
+          <li>FR-17 vocabulary essay is Story <strong>3.3</strong> — foreshadow only here.</li>
+        </ul>
+        <p class="muted">
+          Artifact: <code>docs/perf-notes/canvas-vs-webgl.md</code> · Next: WebGL vocabulary (Story 3.3).
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

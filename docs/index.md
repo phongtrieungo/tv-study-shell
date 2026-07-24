@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-23 (Story 3.1 WebGL Lab)
+Generated: 2026-07-22 · Updated: 2026-07-24 (Epic 3 retrospective + synthesis)
 
 ## Product
 
@@ -38,8 +38,13 @@ Generated: 2026-07-22 · Updated: 2026-07-23 (Story 3.1 WebGL Lab)
 - Story 2.3: [EPG now-line indicator](study/epic-2/2-3-epg-now-line-indicator.html)
 - Story 2.4: [EPG Perf Note](study/epic-2/2-4-epg-perf-note.html)
 - Perf Note: [EPG measured draw / FPS](perf-notes/epg.md)
+- **Epic 3:** [WebGL Lab Surface](study/epic-3/epic-3-webgl-lab-surface.html) (synthesis)
 - Story 3.1: [WebGL Lab textured Visible Window](study/epic-3/3-1-webgl-lab-textured-visible-window.html)
+- Story 3.2: [Canvas vs WebGL Perf Note](study/epic-3/3-2-canvas-vs-webgl-perf-note.html)
+- Perf Note: [Canvas vs WebGL same-machine compare](perf-notes/canvas-vs-webgl.md)
+- Story 3.3: [WebGL vocabulary README](study/epic-3/3-3-webgl-vocabulary-readme-section.html)
+- Vocabulary: [README WebGL vocabulary (this lab)](../README.md#webgl-vocabulary-this-lab)
 
 ## Next implementation step
 
-Story **3.1** shipped (`packages/webgl-lab` — raw WebGL textured Visible Window). Next: create-story / implement **3.2 Canvas vs WebGL Perf Note** (`docs/perf-notes/canvas-vs-webgl.md`). Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).
+Epic **3** closed (Lab W + Perf Note + vocabulary + [synthesis](study/epic-3/epic-3-webgl-lab-surface.html)). Next: create-story / implement **Epic 4** Blits Home — start with `4-1-spike-blits-mount-strategy`. Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).

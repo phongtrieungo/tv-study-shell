@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 3.3 Study Guide: WebGL Vocabulary README</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --ok: #86efac;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        padding: 0.45rem 0.35rem;
+        vertical-align: top;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Story 3.3 · FR-17 / AD-9</p>
+        <h1>WebGL vocabulary · Whiteboard from the README</h1>
+        <p>
+          Interviewers ask: “Do you know WebGL, or only frameworks?” Answer with
+          <strong>four terms + this lab’s symbols</strong> — then bound the depth as a learning lab.
+          Source of truth: root README
+          <a href="../../../README.md#webgl-vocabulary-this-lab">WebGL vocabulary (this lab)</a>.
+        </p>
+      </header>
+
+      <section>
+        <h2>Whiteboard in ≤2 minutes</h2>
+        <ol>
+          <li>
+            <strong>Buffer</strong> — GPU memory for verts.
+            <code>createVbo</code> + per-paint <code>bufferData(DYNAMIC_DRAW)</code> of Visible Window
+            quads (<code>render.ts</code>).
+          </li>
+          <li>
+            <strong>Texture</strong> — GPU image sampling.
+            <code>createColorAtlas</code> → <code>texImage2D</code> (<code>texture.ts</code>).
+          </li>
+          <li>
+            <strong>Shader / program</strong> — VS maps pixels to clip; FS samples the atlas.
+            <code>createShaderProgram</code> (<code>shaders.ts</code>).
+          </li>
+          <li>
+            <strong>Draw call</strong> —
+            <span class="ok">one</span> batched <code>drawArrays(TRIANGLES, …)</code> in
+            <code>drawVisibleWindow</code> — not one call per cell; not <code>drawElements</code> in
+            this lab.
+          </li>
+        </ol>
+        <pre>context (webgl2 → webgl)
+  → program + VBO + atlas
+  → upload verts for Visible Window only
+  → drawArrays (batched)
+  → leave → disposeGpu   ←── VRAM ≠ JS GC</pre>
+      </section>
+
+      <section>
+        <h2>Batching talking point</h2>
+        <p>
+          Same shared Visible Window math as Canvas EPG. Canvas pays many 2D ops per paint; WebGL
+          rebuilds a small interleaved VBO (<code>x,y,u,v,focus</code>) and issues
+          <strong>one</strong> draw call for all visible quads. Cite the measured compare in
+          <a href="../../perf-notes/canvas-vs-webgl.md">canvas-vs-webgl.md</a> — trade-offs, not
+          “GPU always wins.”
+        </p>
+      </section>
+
+      <section>
+        <h2>“WebGL or only frameworks?”</h2>
+        <ul>
+          <li>
+            “I practiced raw WebGL in a learning lab: buffers, textures, shaders, one batched draw —
+            plus dispose on Surface leave.”
+          </li>
+          <li>
+            “I also virtualized the same idea in Canvas and measured both on a named machine.”
+          </li>
+          <li>
+            “I am <em>not</em> claiming production graphics-engine depth. Next applied layer is Blits /
+            Lightning Home (Epic 4) — scene graph on top of WebGL.”
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What this page is / isn’t</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>This page</th>
+              <th>Not this page</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>How to recite FR-17 from the README</td>
+              <td>Full pipeline SVG / process essay (that’s Story 3.1 study)</td>
+            </tr>
+            <tr>
+              <td>Honest learning-lab bound</td>
+              <td>Expert / OEM certification claim</td>
+            </tr>
+            <tr>
+              <td>Pointer to Perf Note + investment note</td>
+              <td>Remeasuring FPS or rewriting webgl-investment.md</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Demo script</h2>
+        <ol>
+          <li>Open README → <strong>WebGL vocabulary (this lab)</strong> table.</li>
+          <li>Shell → WebGL Lab → show HUD <code>context webgl2</code> + <code>drawn ≪ logical</code>.</li>
+          <li>Name the four terms → point at <code>packages/webgl-lab/src/*</code> symbols.</li>
+          <li>Optional: open Perf Note for same-machine Canvas compare.</li>
+          <li>Close with honesty: learning lab; Blits is applied WebGL next.</li>
+        </ol>
+        <p class="muted">
+          Deep walkthrough:
+          <a href="./3-1-webgl-lab-textured-visible-window.html">Story 3.1 study</a>
+          · Measured compare:
+          <a href="./3-2-canvas-vs-webgl-perf-note.html">Story 3.2 study</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

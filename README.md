@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, a separated demo now-line (`packages/epg-canvas`), and a labeled Perf Note ([docs/perf-notes/epg.md](docs/perf-notes/epg.md)). **WebGL Lab** is a raw WebGL Surface with the same shared Visible Window math + textured tiles (`packages/webgl-lab`) — pipeline practice (buffers/textures/shaders/draw calls); Canvas vs WebGL Perf Note and vocabulary README section are still Stories **3.2 / 3.3**. Home / Live still use the stub until Epics 4–5. See [docs/index.md](docs/index.md).  
+> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, a separated demo now-line (`packages/epg-canvas`), and a labeled Perf Note ([docs/perf-notes/epg.md](docs/perf-notes/epg.md)). **WebGL Lab** is a raw WebGL Surface with the same shared Visible Window math + textured tiles (`packages/webgl-lab`) — pipeline practice with a same-machine Canvas vs WebGL Perf Note ([docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md)) and an honest [WebGL vocabulary](#webgl-vocabulary-this-lab) section (buffers / textures / shaders / draw calls). Home / Live still use the stub until Epics 4–5. See [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -74,7 +74,7 @@ pnpm dev
 
 Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Measured draw/FPS notes: [docs/perf-notes/epg.md](docs/perf-notes/epg.md). **WebGL Lab** opens the same Visible Window idea on the GPU (atlas textures + shaders; HUD shows drawn ≪ logical + context webgl2/webgl). Home / Live still mount the stub. Story **6.2** Memory Soak validates cleanup across real Surfaces.
+Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Measured draw/FPS notes: [docs/perf-notes/epg.md](docs/perf-notes/epg.md). **WebGL Lab** opens the same Visible Window idea on the GPU (atlas textures + shaders; HUD shows drawn ≪ logical + context webgl2/webgl). Same-machine Canvas vs WebGL compare: [docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md). Home / Live still mount the stub. Story **6.2** Memory Soak validates cleanup across real Surfaces.
 
 ## Testing (UT / E2E / Emulator)
 
@@ -95,7 +95,7 @@ TV apps need a **ladder**, not a single tool. Full write-up: [docs/testing-strat
 | Artifact | Purpose | Status |
 | --- | --- | --- |
 | [`docs/perf-notes/epg.md`](docs/perf-notes/epg.md) | EPG FPS / draw accounting | **Measured** (2026-07-23) |
-| `docs/perf-notes/canvas-vs-webgl.md` | Canvas EPG vs WebGL Lab | Planned |
+| [`docs/perf-notes/canvas-vs-webgl.md`](docs/perf-notes/canvas-vs-webgl.md) | Canvas EPG vs WebGL Lab | **Measured** (2026-07-24) |
 | `docs/perf-notes/home.md` | Home focus scroll + texture cleanup | Planned |
 | `docs/perf-notes/memory-soak.md` | ~30 min navigate + heap before/after | Planned |
 
@@ -104,9 +104,26 @@ Procedure outline (Lab D): navigate across all surfaces for ~30 minutes, take he
 ## Learning order (calendar investment)
 
 1. Canvas EPG (virtualization)  
-2. **WebGL Lab (invest more time here — GPU vocabulary)**  
+2. **WebGL Lab (invest more time here — [GPU vocabulary](#webgl-vocabulary-this-lab))**  
 3. Blits Home (applied WebGL)  
 4. Solid Live + memory soak  
+
+## WebGL vocabulary (this lab)
+
+**Depth:** learning lab — textured 2D Visible Window tiles in `packages/webgl-lab` (WebGL2 preferred, WebGL1 fallback via `acquireContext`). Not a claim of graphics-engine or production WebGL expertise.
+
+| Term | In this lab |
+| --- | --- |
+| **Buffer** | `createVbo` allocates a VBO; each paint `drawVisibleWindow` uploads Visible Window quads with `bufferData(..., DYNAMIC_DRAW)` (`packages/webgl-lab/src/render.ts`) |
+| **Texture** | `createColorAtlas` builds a 64×64 RGBA color atlas and uploads it with `texImage2D` (`packages/webgl-lab/src/texture.ts`) |
+| **Shader** | `createShaderProgram` compiles/links `VS_SOURCE` (pixel → clip via `u_resolution`) + `FS_SOURCE` (sample `u_tex`) (`packages/webgl-lab/src/shaders.ts`) |
+| **Draw call** | `drawVisibleWindow` issues **one** batched `drawArrays(TRIANGLES, …)` for all visible quads — no `drawElements` in this lab |
+
+**Pipeline in one line:** context → program + VBO + atlas → upload verts → `drawArrays` → on leave `disposeGpu` (VRAM ≠ JS GC).
+
+Interleaved VBO layout: `x, y, u, v, focus` (`FLOATS_PER_VERT = 5`); six verts per quad. Paints coalesce on focus/resize — not a continuous full-grid RAF loop.
+
+See also: [WebGL investment](docs/webgl-investment.md) (why Lab W) · [Canvas vs WebGL Perf Note](docs/perf-notes/canvas-vs-webgl.md) (measured trade-offs) · [Story 3.1 study](docs/study/epic-3/3-1-webgl-lab-textured-visible-window.html) (deep pipeline walkthrough)
 
 ## Live strip vs React-style rerender
 

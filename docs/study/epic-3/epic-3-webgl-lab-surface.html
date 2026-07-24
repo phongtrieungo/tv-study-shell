@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Epic 3 Study Guide: WebGL Lab Surface</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #c084fc;
+        --ok: #86efac;
+        --border: #2a3140;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(920px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      section,
+      header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+        margin-top: 0;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        color: var(--accent);
+      }
+
+      h3 {
+        color: var(--accent-2);
+      }
+
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 16px;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .ok {
+        color: var(--ok);
+      }
+
+      ul,
+      ol {
+        padding-left: 1.25rem;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .arc {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .arc-step {
+        border-left: 3px solid var(--accent-2);
+        padding-left: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Epic 3 synthesis · FR-15–FR-17</p>
+        <h1>WebGL Lab Surface</h1>
+        <p>
+          One start→end picture of Lab W: the same Visible Window
+          <em>idea</em> as Canvas EPG, rendered with raw WebGL — then
+          <strong>measured against Canvas</strong> and explained with honest
+          <strong>pipeline vocabulary</strong> so you can answer “WebGL or only
+          frameworks?” without overclaiming.
+        </p>
+      </header>
+
+      <section>
+        <h2>The problem this epic solves</h2>
+        <p>
+          Canvas EPG (Epic 2) proved virtualization. Interviewers still ask about
+          <span class="ok">buffers, textures, shaders, draw calls</span> and GPU vs CPU
+          trade-offs. Lightning/Blits can hide the metal. Epic 3 closes the gap with a
+          first-class raw WebGL Surface that reuses shared Visible Window math, then
+          documents measured compare + vocabulary at learning-lab depth.
+        </p>
+        <p class="muted">
+          Orientation:
+          <a href="../../webgl-investment.md">docs/webgl-investment.md</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>Learning arc (3.1 → 3.3)</h2>
+        <div class="arc">
+          <div class="arc-step">
+            <h3>3.1 — Textured Visible Window on the GPU</h3>
+            <p>
+              Ship <code>@tvshell/webgl-lab</code>: WebGL2-first (WebGL1 fallback), color
+              atlas via <code>texImage2D</code>, VS/FS program, one batched
+              <code>drawArrays</code> for Visible Window quads only. HUD
+              <code>drawn ≪ logical 600 · context webgl2|webgl</code>.
+              <code>disposeGpu</code> on unmount (VRAM ≠ JS GC). Registry-swap only
+              <code>webgl-lab</code>.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./3-1-webgl-lab-textured-visible-window.html">3-1 WebGL Lab</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>3.2 — Canvas vs WebGL Perf Note</h3>
+            <p>
+              Same machine, same session: Menu → EPG then Menu → WebGL Lab. Label
+              environment (AD-8). Primary evidence: draw accounting on both paths + WebGL
+              draw-call framing (1× <code>drawArrays</code> / paint). Artifact:
+              <a href="../../perf-notes/canvas-vs-webgl.md"><code>docs/perf-notes/canvas-vs-webgl.md</code></a>.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./3-2-canvas-vs-webgl-perf-note.html">3-2 Perf Note</a>
+            </p>
+          </div>
+          <div class="arc-step">
+            <h3>3.3 — Vocabulary you can whiteboard</h3>
+            <p>
+              README section
+              <a href="../../../README.md#webgl-vocabulary-this-lab">WebGL vocabulary (this lab)</a>
+              defines buffers / textures / shaders / draw calls with lab symbols
+              (<code>createVbo</code>, <code>createColorAtlas</code>,
+              <code>createShaderProgram</code>, <code>drawVisibleWindow</code>). Depth
+              labeled learning lab — not graphics-engine expertise.
+            </p>
+            <p class="muted">
+              Study:
+              <a href="./3-3-webgl-vocabulary-readme-section.html">3-3 Vocabulary</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>How the pieces fit</h2>
+        <pre>@tvshell/shared — computeVisibleWindow / fixtures (600)
+        │
+        ├── Canvas path → @tvshell/epg-canvas (Epic 2)
+        │                 many 2D ops / paint · HUD drawn ≪ logical
+        │
+        └── GPU path  → @tvshell/webgl-lab (Epic 3)
+                          acquireContext (webgl2→webgl)
+                          → createShaderProgram + createVbo + createColorAtlas
+                          → drawVisibleWindow → 1× drawArrays
+                          → leave → disposeGpu
+
+Docs layer:
+  canvas-vs-webgl.md     ← measured same-machine compare (FR-16)
+  README vocabulary      ← four terms + symbols (FR-17)
+  webgl-investment.md    ← why Lab W exists (orientation)</pre>
+      </section>
+
+      <section>
+        <h2>Demo / interview script (~5 minutes)</h2>
+        <ol>
+          <li>
+            Shell → <strong>EPG</strong> → HUD <code>drawn ≪ logical 600</code> (Canvas
+            virtualization).
+          </li>
+          <li>
+            Back → <strong>WebGL Lab</strong> → HUD + <code>context webgl2</code>; arrows
+            move the same window idea on the GPU.
+          </li>
+          <li>
+            Open README → <strong>WebGL vocabulary</strong>: name buffer / texture / shader /
+            draw call → point at lab symbols; say one batched <code>drawArrays</code>.
+          </li>
+          <li>
+            Open <code>docs/perf-notes/canvas-vs-webgl.md</code> — same machine, labeled env;
+            refuse “WebGL always wins” / unlabeled 60 FPS.
+          </li>
+          <li>
+            Honesty close: learning lab depth; Blits/Lightning Home (Epic 4) is
+            <em>applied</em> WebGL next — not a redo of Lab W.
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Whiteboard talking points</h2>
+        <ul>
+          <li>
+            <strong>Same math, different renderer</strong> — windowing is data; Canvas vs
+            WebGL is a renderer choice.
+          </li>
+          <li>
+            <strong>Four terms</strong> — buffer (<code>createVbo</code> /
+            <code>bufferData</code>), texture (<code>texImage2D</code> atlas), shader
+            (VS/FS program), draw call (one <code>drawArrays</code>).
+          </li>
+          <li>
+            <strong>Dispose</strong> — <code>disposeGpu</code>; VRAM is not collected by JS GC.
+          </li>
+          <li>
+            <strong>Measure → claim</strong> — AD-8 side-by-side note; desktop proxy ≠ OEM TV.
+          </li>
+          <li>
+            <strong>Not Blits yet</strong> — Lab W teaches metal; Home teaches scene graph +
+            texture lifecycle.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop Chromium + keyboard-as-D-pad — not Tizen/webOS certification.</li>
+          <li>Learning lab / textured 2D UI tiles — not graphics-engine expertise.</li>
+          <li>Stage size changes drawn counts (same virtualization, different viewport).</li>
+          <li>No <code>drawElements</code> in this lab — do not invent indexed draws on the whiteboard.</li>
+          <li>Vitest / Playwright still Epic 7 — confidence today is typecheck + build + smoke + docs.</li>
+          <li>HiDPI / Date.parse / overlapping nav — still deferred; do not expand into Epic 4 unless blocked.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What’s next — Epic 4 Blits Home</h2>
+        <p>
+          Applied WebGL via Blits on Lightning 3: focusable poster rail, lazy texture
+          load/unload, Home Perf Note. You already know what the renderer is doing underneath.
+        </p>
+        <p class="muted">
+          Story start: <code>4-1-spike-blits-mount-strategy</code> · Keep study HTML DoD.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

@@ -46,3 +46,5 @@ That is stronger than theory slides *or* framework-only demos.
 ## Artifacts updated
 
 PRD (FR-15–17), architecture (AD-9 + `webgl-lab` package), epics (new Epic 3), sprint status, forged idea, README, this note.
+
+**Vocabulary (FR-17):** concrete buffers / textures / shaders / draw calls for this lab live in the root [README WebGL vocabulary](../README.md#webgl-vocabulary-this-lab) section — this file stays the “why invest” rationale.
