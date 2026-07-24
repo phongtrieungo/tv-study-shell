@@ -65,7 +65,7 @@ Do **not** invent a continuous full-grid RAF loop “for FPS” on either Surfac
 | Story | Artifact |
 | --- | --- |
 | 3.3 | [README WebGL vocabulary](../../README.md#webgl-vocabulary-this-lab) — buffers / textures / shaders / draw calls (**shipped**) |
-| 4.4 | Home Perf Note |
+| 4.4 | [`home-blits.md`](home-blits.md) — Home focus scroll + texture cleanup (**Measured** 2026-07-24) |
 | 6.2 | `docs/perf-notes/memory-soak.md` — heap across Surfaces |
 | 7.3 | Emulator dry-run notes |
 

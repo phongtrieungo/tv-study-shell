@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 4.3 Study Guide: Lazy Texture Load and Unload</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #fbbf24;
+        --ok: #86efac;
+        --warn: #fb7185;
+        --border: #2a3140;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); }
+      main { width: min(1080px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+      section, header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      h1, h2, h3 { line-height: 1.25; margin-top: 0; }
+      h1 { font-size: 2rem; }
+      h2 { color: var(--accent); }
+      h3 { color: var(--accent-2); font-size: 1.05rem; }
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+      .muted { color: var(--muted); }
+      .ok { color: var(--ok); }
+      .warn { color: var(--warn); }
+      .tag {
+        display: inline-block;
+        margin-right: 0.4rem;
+        margin-bottom: 0.4rem;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--accent-2);
+        font-size: 0.85rem;
+      }
+      table { width: 100%; border-collapse: collapse; }
+      th, td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.55rem 0.4rem;
+        border-bottom: 1px solid var(--border);
+      }
+      a { color: var(--accent); }
+      .flow-note { font-size: 0.95rem; color: var(--muted); margin: 0 0 1rem; }
+      .diagram {
+        overflow-x: auto;
+        padding: 1rem 0.5rem;
+        border-radius: 12px;
+        background: #0a0c10;
+        border: 1px solid var(--border);
+        margin: 0 0 1.25rem;
+      }
+      .diagram svg { display: block; margin: 0 auto; min-width: 900px; }
+      .diagram-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin: 0 0 1rem;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      .diagram-legend span::before {
+        content: "";
+        display: inline-block;
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 3px;
+        margin-right: 0.4rem;
+        vertical-align: -0.05rem;
+      }
+      .lg-cheap::before { background: #64748b; }
+      .lg-full::before { background: #fbbf24; }
+      .lg-leave::before { background: #34d399; }
+      .callout {
+        border-left: 3px solid var(--accent-2);
+        padding: 0.35rem 0 0.35rem 1rem;
+        margin: 0.75rem 0;
+        color: var(--muted);
+      }
+      .shipped {
+        display: grid;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .shipped li {
+        padding: 0.55rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(10, 12, 16, 0.45);
+      }
+      .shipped strong { color: var(--ok); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Epic 4 · Story 4.3 · as implemented</p>
+        <h1>Lazy texture load and unload</h1>
+        <p>
+          What shipped: <strong>placeholder → upgrade</strong> inside focus±2 —
+          far tiles stay cheap color; near tiles load tile-sized SVG “FULL” posters;
+          leave clears the registry + Blits quit.
+        </p>
+        <span class="tag">FR-9 / AD-6</span>
+        <span class="tag">placeholder→upgrade</span>
+        <span class="tag">focus ± 2</span>
+        <span class="tag">dispose on leave</span>
+      </header>
+
+      <section>
+        <h2>What actually shipped</h2>
+        <ul class="shipped">
+          <li><strong>Policy:</strong> <code>TEXTURE_POLICY = 'placeholder-upgrade'</code>, <code>TEXTURE_WINDOW = 2</code></li>
+          <li><strong>Cheap:</strong> hashed color Element (4.2) — no Image <code>src</code></li>
+          <li><strong>FULL:</strong> ~200×260 SVG data-URL Image for indices in focus±2 (badge shows FULL vs cheap)</li>
+          <li><strong>HUD:</strong> <code>FULL n (peak m)</code> — <code>n</code> stays ≤ 5 while scrubbing all 12</li>
+          <li><strong>Leave:</strong> <code>disposeAllTextures()</code> then <code>app.quit()</code>; <code>[home] dispose</code> log; probe false</li>
+          <li><strong>Docs:</strong> Texture lifecycle section in <code>packages/home-blits/README.md</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Why TV Home dies without this</h2>
+        <p>
+          Decode every poster at full resolution and never free GPU textures → you burn through a
+          mid-range TV’s usable RAM (often <strong>hundreds of MB</strong>, not desktop GB).
+          VRAM ≠ JS GC — quitting the app and clearing Image srcs is the discipline.
+        </p>
+        <p class="muted">
+          Interview line: “Same AD-6 honesty as Lab W <code>disposeGpu</code> — Blits quit + an explicit upgrade registry,
+          with a focus window so we never keep all FULL posters forever.”
+        </p>
+      </section>
+
+      <section>
+        <h2>Workflow — scrub and leave</h2>
+        <p class="flow-note">Grey = cheap · amber = FULL · green = leave dispose.</p>
+        <div class="diagram-legend">
+          <span class="lg-cheap">Cheap (color only)</span>
+          <span class="lg-full">FULL (SVG Image)</span>
+          <span class="lg-leave">Dispose / probe</span>
+        </div>
+        <div class="diagram" aria-label="Texture window diagram">
+          <svg viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg" role="img">
+            <defs>
+              <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa4b2" />
+              </marker>
+            </defs>
+
+            <!-- Rail row -->
+            <text x="490" y="36" text-anchor="middle" fill="#e8ecf3" font-size="14" font-weight="700">Focus at index 5 → window [3..7] FULL</text>
+            <rect x="40" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="75" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">0</text>
+            <rect x="120" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="155" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">1</text>
+            <rect x="200" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="235" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">2</text>
+            <rect x="280" y="56" width="70" height="90" rx="8" fill="#422006" stroke="#fbbf24" stroke-width="2" />
+            <text x="315" y="100" text-anchor="middle" fill="#fcd34d" font-size="12">3</text>
+            <text x="315" y="118" text-anchor="middle" fill="#fbbf24" font-size="10">FULL</text>
+            <rect x="360" y="56" width="70" height="90" rx="8" fill="#422006" stroke="#fbbf24" stroke-width="2" />
+            <text x="395" y="100" text-anchor="middle" fill="#fcd34d" font-size="12">4</text>
+            <text x="395" y="118" text-anchor="middle" fill="#fbbf24" font-size="10">FULL</text>
+            <rect x="440" y="48" width="78" height="106" rx="8" fill="#422006" stroke="#fbbf24" stroke-width="3" />
+            <text x="479" y="96" text-anchor="middle" fill="#fde68a" font-size="13" font-weight="700">5</text>
+            <text x="479" y="116" text-anchor="middle" fill="#fbbf24" font-size="10">FOCUS</text>
+            <rect x="530" y="56" width="70" height="90" rx="8" fill="#422006" stroke="#fbbf24" stroke-width="2" />
+            <text x="565" y="100" text-anchor="middle" fill="#fcd34d" font-size="12">6</text>
+            <text x="565" y="118" text-anchor="middle" fill="#fbbf24" font-size="10">FULL</text>
+            <rect x="610" y="56" width="70" height="90" rx="8" fill="#422006" stroke="#fbbf24" stroke-width="2" />
+            <text x="645" y="100" text-anchor="middle" fill="#fcd34d" font-size="12">7</text>
+            <text x="645" y="118" text-anchor="middle" fill="#fbbf24" font-size="10">FULL</text>
+            <rect x="690" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="725" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">8</text>
+            <rect x="770" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="805" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">…</text>
+            <rect x="850" y="56" width="70" height="90" rx="8" fill="#334155" stroke="#64748b" />
+            <text x="885" y="106" text-anchor="middle" fill="#94a3b8" font-size="12">11</text>
+
+            <line x1="490" y1="170" x2="490" y2="210" stroke="#9aa4b2" stroke-width="2" marker-end="url(#a)" />
+
+            <rect x="80" y="220" width="360" height="80" rx="12" fill="#1a1028" stroke="#a78bfa" />
+            <text x="260" y="256" text-anchor="middle" fill="#e8ecf3" font-size="13">Focus moves → syncTextureWindow</text>
+            <text x="260" y="278" text-anchor="middle" fill="#c4b5fd" font-size="12">unload far src · load near data-URL</text>
+
+            <line x1="440" y1="260" x2="520" y2="260" stroke="#9aa4b2" stroke-width="2" marker-end="url(#a)" />
+
+            <rect x="520" y="220" width="400" height="80" rx="12" fill="#052e16" stroke="#34d399" />
+            <text x="720" y="256" text-anchor="middle" fill="#86efac" font-size="13">Back → disposeAllTextures + quit</text>
+            <text x="720" y="278" text-anchor="middle" fill="#bbf7d0" font-size="12">probe false · no orphan FULL map</text>
+
+            <text x="490" y="360" text-anchor="middle" fill="#9aa4b2" font-size="12">
+              Lab W cousin: texImage2D / disposeGpu ≈ Image src upgrade / registry clear + app.quit
+            </text>
+            <text x="490" y="388" text-anchor="middle" fill="#9aa4b2" font-size="12">
+              Production pattern: same window, CDN URL at rail size — never 4K for a 200px tile
+            </text>
+          </svg>
+        </div>
+        <p class="callout">
+          Behavior is real: scrubbing never holds 12 FULL srcs at once. Tiny SVG stand-ins still prove unload —
+          document “full-res” as the pattern you’re practicing.
+        </p>
+      </section>
+
+      <section>
+        <h2>Engine vs you</h2>
+        <table>
+          <thead>
+            <tr><th>Who</th><th>Responsibility</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lightning / Blits</td>
+              <td>Creates ImageTextures when <code>src</code> is set; <code>quit()</code> tears down the renderer</td>
+            </tr>
+            <tr>
+              <td class="ok">home-blits</td>
+              <td>Decides <em>which</em> tiles get <code>src</code>; clears the JS registry on leave; keeps <code>hasActiveSideEffects</code> honest</td>
+            </tr>
+            <tr>
+              <td>Shell DOM clear</td>
+              <td>Necessary but not sufficient alone for GPU honesty — still quit + dispose registry</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Demo script</h2>
+        <ol>
+          <li><code>pnpm dev</code> → Home → note HUD <code>FULL 3 (peak 3)</code> at focus 0.</li>
+          <li>Hold Right across the rail — FULL stays ≤ 5; far badges say <code>cheap</code>.</li>
+          <li>Console: <code>[home] textures { loadedFull, peakLoaded, … }</code>.</li>
+          <li>Escape → <code>[home] dispose { disposedTextures, peakLoaded }</code>; status “Side effects cleared.”</li>
+          <li>Remount ×3 — no growing peak story; probe stays false after leave.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop Chromium ≠ OEM TV RAM; SVG data-URLs ≠ production CDN.</li>
+          <li class="warn">No Perf Note numbers here — that’s <strong>4.4</strong> (<code>docs/perf-notes/home-blits.md</code>).</li>
+          <li>30-minute soak → <strong>6.2</strong>.</li>
+        </ul>
+        <p class="muted">
+          Sources: <code>packages/home-blits/src/texture-lifecycle.ts</code> ·
+          <a href="../../../packages/home-blits/README.md">README Texture lifecycle</a> ·
+          <a href="4-2-focusable-horizontal-home-rail.html">4.2 rail</a> ·
+          <a href="../epic-3/3-1-webgl-lab-textured-visible-window.html">Lab W</a> ·
+          <a href="../../index.md">docs index</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

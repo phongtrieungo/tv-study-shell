@@ -2,7 +2,7 @@
 
 Portfolio Smart TV study monorepo: thin shell + **Canvas EPG → raw WebGL Lab → Blits/Lightning Home → SolidJS Live**, with D-pad focus and measured FPS/heap notes.
 
-> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, a separated demo now-line (`packages/epg-canvas`), and a labeled Perf Note ([docs/perf-notes/epg.md](docs/perf-notes/epg.md)). **WebGL Lab** is a raw WebGL Surface with the same shared Visible Window math + textured tiles (`packages/webgl-lab`) — pipeline practice with a same-machine Canvas vs WebGL Perf Note ([docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md)) and an honest [WebGL vocabulary](#webgl-vocabulary-this-lab) section (buffers / textures / shaders / draw calls). **Home** is an in-page Blits / Lightning 3 hello-world (`packages/home-blits`) — mount ADR in that package README; focusable rail / lazy textures / Home Perf Note still Stories **4.2–4.4**. Live still uses the stub until Epic 5. See [docs/index.md](docs/index.md).  
+> **Status:** Shell hosts Surfaces via `mount`/`unmount`. **EPG** is a real Canvas Surface with Visible Window math, D-pad focus, Enter program detail, a separated demo now-line (`packages/epg-canvas`), and a labeled Perf Note ([docs/perf-notes/epg.md](docs/perf-notes/epg.md)). **WebGL Lab** is a raw WebGL Surface with the same shared Visible Window math + textured tiles (`packages/webgl-lab`) — pipeline practice with a same-machine Canvas vs WebGL Perf Note ([docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md)) and an honest [WebGL vocabulary](#webgl-vocabulary-this-lab) section (buffers / textures / shaders / draw calls). **Home** is an in-page Blits / Lightning 3 Surface (`packages/home-blits`) with a focusable Featured rail, **placeholder→upgrade** textures (focus±2; dispose on leave), and a labeled Perf Note ([docs/perf-notes/home-blits.md](docs/perf-notes/home-blits.md)). Live still uses the stub until Epic 5. See [docs/index.md](docs/index.md).  
 > **WebGL focus:** Raw WebGL is an MVP lab (not only Lightning-under-the-hood). See [docs/webgl-investment.md](docs/webgl-investment.md).
 
 ## Why this exists
@@ -74,7 +74,7 @@ pnpm dev
 
 Shell serves at `http://localhost:5180`. You should see a visible Safe Zone guide and a focusable menu listing **Home / Live / EPG / WebGL Lab**.
 
-Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Measured draw/FPS notes: [docs/perf-notes/epg.md](docs/perf-notes/epg.md). **WebGL Lab** opens the same Visible Window idea on the GPU (atlas textures + shaders; HUD shows drawn ≪ logical + context webgl2/webgl). Same-machine Canvas vs WebGL compare: [docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md). **Home** mounts an in-page Blits hello-world (see `packages/home-blits/README.md` ADR); rail focus is Story **4.2**. Live still mounts the stub. Story **6.2** Memory Soak validates cleanup across real Surfaces.
+Use arrow keys as D-pad and Enter to **mount**. **EPG** opens the Canvas Program Grid: Visible Window HUD (drawn ≪ logical), a red **NOW** line driven by a demo clock (fixture-day remap; ticks move chrome without rebuilding the logical model), ↑↓/←→ move focus across channels and programs, Enter opens a minimal title/time detail, Back closes detail then returns to the menu. Measured draw/FPS notes: [docs/perf-notes/epg.md](docs/perf-notes/epg.md). **WebGL Lab** opens the same Visible Window idea on the GPU (atlas textures + shaders; HUD shows drawn ≪ logical + context webgl2/webgl). Same-machine Canvas vs WebGL compare: [docs/perf-notes/canvas-vs-webgl.md](docs/perf-notes/canvas-vs-webgl.md). **Home** mounts an in-page Blits Featured rail (shared fixtures, focus±2 texture upgrades; see `packages/home-blits/README.md`). Measured Home notes: [docs/perf-notes/home-blits.md](docs/perf-notes/home-blits.md). Live still mounts the stub. Story **6.2** Memory Soak validates cleanup across real Surfaces.
 
 ## Testing (UT / E2E / Emulator)
 
@@ -96,7 +96,7 @@ TV apps need a **ladder**, not a single tool. Full write-up: [docs/testing-strat
 | --- | --- | --- |
 | [`docs/perf-notes/epg.md`](docs/perf-notes/epg.md) | EPG FPS / draw accounting | **Measured** (2026-07-23) |
 | [`docs/perf-notes/canvas-vs-webgl.md`](docs/perf-notes/canvas-vs-webgl.md) | Canvas EPG vs WebGL Lab | **Measured** (2026-07-24) |
-| `docs/perf-notes/home.md` | Home focus scroll + texture cleanup | Planned |
+| [`docs/perf-notes/home-blits.md`](docs/perf-notes/home-blits.md) | Home focus scroll + texture cleanup | **Measured** (2026-07-24) |
 | `docs/perf-notes/memory-soak.md` | ~30 min navigate + heap before/after | Planned |
 
 Procedure outline (Lab D): navigate across all surfaces for ~30 minutes, take heap snapshots before/after, record growth or “no growth,” fix leaks, re-measure.

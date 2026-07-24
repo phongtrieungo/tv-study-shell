@@ -33,12 +33,12 @@ development_status:
   3-3-webgl-vocabulary-readme-section: done
   epic-3-retrospective: done
 
-  epic-4: in-progress
+  epic-4: done
   4-1-spike-blits-mount-strategy: done
-  4-2-focusable-horizontal-home-rail: ready-for-dev
-  4-3-lazy-texture-load-and-unload: ready-for-dev
-  4-4-home-perf-note: ready-for-dev
-  epic-4-retrospective: optional
+  4-2-focusable-horizontal-home-rail: done
+  4-3-lazy-texture-load-and-unload: done
+  4-4-home-perf-note: done
+  epic-4-retrospective: done
 
   epic-5: backlog
   5-1-live-strip-with-signals: backlog
@@ -97,7 +97,7 @@ action_items:
   - epic: 3
     action: "Do not expand Epic 2 deferred polish into Epic 4 unless Home is blocked"
     owner: "Amelia / Winston"
-    status: open
+    status: done
   - epic: 3
     action: "Run create-story for 4.1 Blits mount spike (contrast with Lab W vocabulary)"
     owner: "Ngotrieuphong / Amelia"
@@ -105,4 +105,16 @@ action_items:
   - epic: 3
     action: "Align story-file Status with sprint-status at epic closeout (3.1/3.2 story files)"
     owner: "Amelia"
+    status: open
+  - epic: 4
+    action: "Create epic-4 study synthesis HTML and link from docs/index.md"
+    owner: "Paige / Amelia"
+    status: done
+  - epic: 4
+    action: "Do not expand Epic 2 deferred polish into Epic 5 unless Live blocked"
+    owner: "Amelia / Winston"
+    status: open
+  - epic: 4
+    action: "Run create-story for 5.1 Live strip with Solid signals"
+    owner: "Ngotrieuphong / Amelia"
     status: open

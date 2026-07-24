@@ -1,10 +1,15 @@
 /**
- * Home Blits Surface — mount spike (Story 4.1 / FR-8 prelude).
- * Mount context shape matches Shell `SurfaceMountContext` structurally.
+ * Home Blits Surface — Featured rail + texture lifecycle (Stories 4.1–4.3).
+ * Mount strategy ADR from 4.1 unchanged (in-page embed).
  */
 
 import Blits from '@lightningjs/blits'
-import { HelloApp } from './App.js'
+import { createHomeApp } from './App.js'
+import {
+  disposeAllTextures,
+  getTextureStats,
+  hasLoadedTextures,
+} from './texture-lifecycle.js'
 
 const FALLBACK_W = 640
 const FALLBACK_H = 360
@@ -32,13 +37,13 @@ function measureStage(): { w: number; h: number } {
  * Wrap the Blits Application factory so we keep a handle for quit/destroy on leave.
  * `Blits.Launch` assigns `app.quit` synchronously after the factory returns (inside its microtask).
  */
-function createAppFactory(): () => QuitableApp {
+function createAppFactory(stageW: number, stageH: number): () => QuitableApp {
+  const HomeApp = createHomeApp({ stageW, stageH })
   return () => {
     try {
-      // Blits typings declare Application factory as void; runtime returns the app instance.
-      const app = (HelloApp as unknown as () => QuitableApp)()
+      const app = (HomeApp as unknown as () => QuitableApp)()
       if (!app || typeof app !== 'object') {
-        throw new Error(`[home] HelloApp() returned ${String(app)}`)
+        throw new Error(`[home] HomeApp() returned ${String(app)}`)
       }
       appRef = app
       return app
@@ -53,6 +58,9 @@ function disposeSideEffects(): void {
   const app = appRef
   appRef = null
   launchPending = false
+
+  // Clear upgraded poster registry before / with app teardown (AD-6).
+  const textureStats = disposeAllTextures()
 
   if (app?.quit) {
     try {
@@ -72,13 +80,20 @@ function disposeSideEffects(): void {
       console.error('[home] destroy failed', error)
     }
   }
+
+  console.info('[home] dispose', {
+    disposedTextures: textureStats.disposedOnLeave,
+    peakLoaded: textureStats.peakLoaded,
+    policy: textureStats.policy,
+    window: textureStats.window,
+  })
 }
 
 export async function mount(
   host: HTMLElement,
   ctx?: { surfaceId?: string },
 ): Promise<void> {
-  // Remount safety: tear down any prior Blits instance before attaching again.
+  // Remount safety: tear down any prior Blits instance + textures before attaching again.
   disposeSideEffects()
 
   hostEl = host
@@ -88,12 +103,12 @@ export async function mount(
   root.dataset.testid = 'home-blits'
 
   const title = document.createElement('h2')
-  title.textContent = 'Home — Blits hello-world'
+  title.textContent = 'Home — Featured rail'
 
   const hint = document.createElement('p')
   hint.className = 'home-blits__hint'
   hint.textContent =
-    'Applied WebGL via Blits / Lightning 3 (in-page embed). Rail focus lands in Story 4.2. Back returns to menu.'
+    'Placeholder→upgrade textures (focus±2). Far tiles stay cheap color; Back disposes FULL posters. Perf Note → 4.4.'
 
   const stage = document.createElement('div')
   stage.className = 'home-blits__stage'
@@ -108,17 +123,14 @@ export async function mount(
   launchPending = true
 
   try {
-    // Target is an HTMLElement (Blits also accepts id strings). Prefer element for Shell embed.
-    Blits.Launch(createAppFactory(), stage, {
+    Blits.Launch(createAppFactory(w, h), stage, {
       w,
       h,
       multithreaded: false,
       debugLevel: 1,
       canvasColor: '#12151c',
-      // Shell owns Back → leave; hello-world does not need rail keys yet.
       enableMouse: false,
     })
-    // Launch defers App() to a microtask — poll briefly so quit() is attached.
     const deadline = Date.now() + 2000
     while (!appRef && Date.now() < deadline) {
       await Promise.resolve()
@@ -133,6 +145,8 @@ export async function mount(
     console.info('[home] mount', {
       surfaceId: ctx?.surfaceId ?? null,
       strategy: 'in-page-embed',
+      rail: 'rail-featured',
+      textures: getTextureStats(),
       w,
       h,
     })
@@ -149,7 +163,6 @@ export async function mount(
 }
 
 export async function unmount(): Promise<void> {
-  // Allow a pending Launch microtask to finish so quit exists.
   await Promise.resolve()
   disposeSideEffects()
   if (hostEl) {
@@ -160,7 +173,7 @@ export async function unmount(): Promise<void> {
   console.info('[home] unmount')
 }
 
-/** Smoke/console proof that AD-6 cleanup ran (Blits app + stage). */
+/** Smoke/console proof that AD-6 cleanup ran (Blits app + texture registry). */
 export function hasActiveSideEffects(): boolean {
-  return appRef != null || launchPending
+  return appRef != null || launchPending || hasLoadedTextures()
 }

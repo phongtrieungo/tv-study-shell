@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story 4.4 Study Guide: Home Perf Note</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        --bg: #0f1115;
+        --panel: #171a21;
+        --text: #e8ecf3;
+        --muted: #9aa4b2;
+        --accent: #7dd3fc;
+        --accent-2: #fbbf24;
+        --ok: #86efac;
+        --warn: #fb7185;
+        --border: #2a3140;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text); }
+      main { width: min(1080px, calc(100vw - 32px)); margin: 0 auto; padding: 32px 0 48px; }
+      section, header {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      h1, h2, h3 { line-height: 1.25; margin-top: 0; }
+      h1 { font-size: 2rem; }
+      h2 { color: var(--accent); }
+      h3 { color: var(--accent-2); font-size: 1.05rem; }
+      code {
+        font-family: "SFMono-Regular", ui-monospace, monospace;
+        background: rgba(125, 211, 252, 0.12);
+        padding: 0.12rem 0.35rem;
+        border-radius: 6px;
+      }
+      .muted { color: var(--muted); }
+      .ok { color: var(--ok); }
+      .tag {
+        display: inline-block;
+        margin-right: 0.4rem;
+        margin-bottom: 0.4rem;
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--accent-2);
+        font-size: 0.85rem;
+      }
+      table { width: 100%; border-collapse: collapse; }
+      th, td {
+        text-align: left;
+        vertical-align: top;
+        padding: 0.55rem 0.4rem;
+        border-bottom: 1px solid var(--border);
+      }
+      a { color: var(--accent); }
+      .callout {
+        border-left: 3px solid var(--accent-2);
+        padding: 0.35rem 0 0.35rem 1rem;
+        margin: 0.75rem 0;
+        color: var(--muted);
+      }
+      .shipped {
+        display: grid;
+        gap: 0.5rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .shipped li {
+        padding: 0.55rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: rgba(10, 12, 16, 0.45);
+      }
+      .shipped strong { color: var(--ok); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="muted">TV Study Shell · Epic 4 · Story 4.4 · as implemented</p>
+        <h1>Home Perf Note</h1>
+        <p>
+          What shipped: labeled evidence at
+          <a href="../../perf-notes/home-blits.md"><code>docs/perf-notes/home-blits.md</code></a>
+          — focus-scroll feel, FULL-tile window band, leave dispose — same AD-8 honesty as EPG / canvas-vs-webgl.
+        </p>
+        <span class="tag">FR-10 / AD-8</span>
+        <span class="tag">home-blits.md</span>
+        <span class="tag">docs-only measure</span>
+      </header>
+
+      <section>
+        <h2>What actually shipped</h2>
+        <ul class="shipped">
+          <li><strong>Perf Note:</strong> Environment table + Method + Results (FULL ≤5, peak 5, smooth scrub, probe false)</li>
+          <li><strong>README:</strong> table path fixed <code>home.md</code> → <code>home-blits.md</code> (Measured)</li>
+          <li><strong>No Surface refactor</strong> — HUD/logs from 4.3 were enough to measure</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Mental model (≤30s)</h2>
+        <p>
+          After you can <em>demo</em> the rail (4.2) and <em>claim</em> texture discipline (4.3), interviews ask “how do you know?”
+          AD-8 wants a <strong>labeled</strong> note — browser, OS, machine — not “feels fine.”
+        </p>
+        <p class="muted">
+          Interview line: “Here’s my env block; FULL n stayed ≤5 while scrubbing 12; Back cleared the probe — desktop proxy, not OEM cert.”
+        </p>
+      </section>
+
+      <section>
+        <h2>What to measure on Home vs peers</h2>
+        <table>
+          <thead>
+            <tr><th>Surface</th><th>Primary signal</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Canvas EPG</td><td>drawn ≪ logical</td></tr>
+            <tr><td>WebGL Lab</td><td>drawn ≪ logical + batched drawArrays</td></tr>
+            <tr><td class="ok">Home Blits</td><td>focus-scroll feel + FULL window band + leave dispose</td></tr>
+          </tbody>
+        </table>
+        <p class="callout">
+          Do not invent a continuous full-rail RAF FPS mill. Measure the real interaction path.
+        </p>
+      </section>
+
+      <section>
+        <h2>Demo script</h2>
+        <ol>
+          <li>Menu → Home → quote Environment from the note.</li>
+          <li>Scrub ←/→ → point at HUD <code>FULL n (peak m)</code>.</li>
+          <li>Back → probe false → open <code>docs/perf-notes/home-blits.md</code>.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Honesty bounds</h2>
+        <ul>
+          <li>Desktop proxy ≠ OEM TV; learning lab; no production Lightning years.</li>
+          <li>Soak / Playwright / emulator → 6.2 / 7.2 / 7.3.</li>
+        </ul>
+        <p class="muted">
+          <a href="../../perf-notes/home-blits.md">Perf Note</a> ·
+          <a href="4-3-lazy-texture-load-and-unload.html">4.3 textures</a> ·
+          <a href="../../index.md">docs index</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

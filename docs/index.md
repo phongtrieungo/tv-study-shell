@@ -1,6 +1,6 @@
 # TV Study Shell — Project Knowledge Index
 
-Generated: 2026-07-22 · Updated: 2026-07-24 (Epic 3 retrospective + synthesis)
+Generated: 2026-07-22 · Updated: 2026-07-24 (Story 4.4 Home Perf Note + Epic 4 synthesis)
 
 ## Product
 
@@ -28,7 +28,7 @@ Generated: 2026-07-22 · Updated: 2026-07-24 (Epic 3 retrospective + synthesis)
 
 ## Next implementation step
 
-Epic **4** in progress — Story **4.1** Blits in-page mount spike shipped (`packages/home-blits`). Next: implement **4.2** focusable Home rail. Orientation: [webgl-investment.md](webgl-investment.md) · Home ADR: `../packages/home-blits/README.md`. From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).
+Epic **4** complete (Home Blits mount → rail → textures → Perf Note). Next: Epic **5** — create-story / implement **5.1** Live strip with Solid signals. Orientation: [webgl-investment.md](webgl-investment.md). Study HTML DoD continues — see [study-guides.md](study-guides.md).
 
 ## Study guides
 
@@ -49,3 +49,8 @@ Epic **4** in progress — Story **4.1** Blits in-page mount spike shipped (`pac
 - Story 3.3: [WebGL vocabulary README](study/epic-3/3-3-webgl-vocabulary-readme-section.html)
 - Vocabulary: [README WebGL vocabulary (this lab)](../README.md#webgl-vocabulary-this-lab)
 - Story 4.1: [Spike Blits mount strategy](study/epic-4/4-1-spike-blits-mount-strategy.html)
+- Story 4.2: [Focusable horizontal Home rail](study/epic-4/4-2-focusable-horizontal-home-rail.html)
+- Story 4.3: [Lazy texture load and unload](study/epic-4/4-3-lazy-texture-load-and-unload.html)
+- Story 4.4: [Home Perf Note](study/epic-4/4-4-home-perf-note.html)
+- Perf Note: [Home Blits focus-scroll / textures](perf-notes/home-blits.md)
+- **Epic 4:** [Blits Home Surface](study/epic-4/epic-4-blits-home-surface.html) (synthesis)

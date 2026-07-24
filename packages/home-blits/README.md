@@ -36,3 +36,40 @@ Hello-world proves Launch into a stage `HTMLElement` inside the Shell host, size
 ### Honesty
 
 Learning lab / portfolio evidence — not a claim of production Lightning employment years.
+
+## Featured rail (Story 4.2)
+
+- Data: `@tvshell/shared` `homeRails` → `rail-featured` (≥12 items). Empty `posterUrl` filled with **hashed color tiles** in `packages/home-blits` (no local fixture duplicate, no fetch).
+- Focus: Blits `input` `left`/`right` (default keymap = ArrowLeft/Right / AD-4). **Clamp** at ends (no wrap). Up/Down no-op on single-rail MVP.
+- Affordance: amber ring + scale + label color — readable at 10-foot / Safe Zone.
+- Scroll: rail `x` offset keeps the focused tile on-stage.
+- Back: **not** handled in Blits — Shell `main.ts` owns Escape/Backspace → `host.leave()`. Remount resets focus to index 0.
+
+## Texture lifecycle (Story 4.3)
+
+### Policy shipped: **placeholder → upgrade** (focus ± 2)
+
+| Tier | When | What |
+| --- | --- | --- |
+| **Cheap** | Outside focus±2 | Hashed color Element only — no Image `src`, no GPU poster bitmap |
+| **FULL** | Focus index ± `TEXTURE_WINDOW` (2) | Tile-sized SVG data-URL (`~200×260`) via Blits/Lightning Image — practices “full” posters without 4K decode |
+
+**Unload triggers**
+
+1. **Focus move** — leaving the window drops that item’s `src` (registry delete → Image node hidden).
+2. **Surface leave** — `disposeAllTextures()` clears the registry, then `app.quit()` / `destroy` tears down Lightning (AD-6). Logs `[home] dispose { disposedTextures, peakLoaded, policy, window }`.
+
+**Engine vs us**
+
+- Lightning/Blits creates ImageTextures when `src` is set; quitting the Application releases renderer resources.
+- We still track upgrades explicitly so far tiles never hold a “full” src, and leave always clears the JS registry (don’t rely on DOM `replaceChildren` alone for GPU honesty).
+
+**Proof**
+
+- HUD: `FULL n (peak m)` while scrubbing — `n` stays ≤ 5 (window of 5).
+- After Back: `hasActiveSideEffects()` false (no app, no pending launch, no loaded textures).
+- Console: `[home] textures` on focus change; `[home] dispose` on leave.
+
+**Honesty**
+
+Desktop Chromium proxy ≠ OEM TV RAM. SVG data-URLs are stand-ins for production CDN tiles at rail size. Numbers / FPS → Home Perf Note (**4.4**) — see [`docs/perf-notes/home-blits.md`](../../docs/perf-notes/home-blits.md). Cousin literacy: Lab W `disposeGpu` / `deleteTexture` ≈ Home quit + registry clear.

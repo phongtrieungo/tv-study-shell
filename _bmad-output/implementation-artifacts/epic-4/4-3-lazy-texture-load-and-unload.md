@@ -1,6 +1,10 @@
+---
+baseline_commit: d76ee9e2329235345d0a24a10a65d7c0216335b9
+---
+
 # Story 4.3: Lazy texture load and unload
 
-Status: ready-for-dev
+Status: review
 
 <!-- Ultimate context engine analysis completed - comprehensive developer guide created -->
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
@@ -26,43 +30,43 @@ so that I practice TV memory discipline (FR-9, AD-6).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement lazy / bounded texture strategy (AC: #1, #2)
-  - [ ] Define a concrete policy (pick one and implement it — document exactly which):
+- [x] Task 1: Implement lazy / bounded texture strategy (AC: #1, #2)
+  - [x] Define a concrete policy (pick one and implement it — document exactly which):
     - **Windowed:** keep textures for focus ± N neighbors; release or free far tiles when focus moves
     - **Bounds / margin:** rely on Lightning bounds-margin / renderer culling **plus** explicit dispose of off-window images if the API allows
     - **Placeholder → upgrade:** far tiles show cheap color/placeholder; full poster loads near focus; unload when far again
-  - [ ] “Avoids keeping all full-res forever” must be **true in behavior**, not only in comments — if MVP placeholders are tiny, still demonstrate unload on leave and document “full-res” as the production pattern you are practicing
-  - [ ] Prefer appropriately sized assets (domain research: don’t decode 4K for ~200px tiles)
-  - [ ] Do **not** require real CDN posters; generated or local placeholders OK (AD-3)
+  - [x] “Avoids keeping all full-res forever” must be **true in behavior**, not only in comments — if MVP placeholders are tiny, still demonstrate unload on leave and document “full-res” as the production pattern you are practicing
+  - [x] Prefer appropriately sized assets (domain research: don’t decode 4K for ~200px tiles)
+  - [x] Do **not** require real CDN posters; generated or local placeholders OK (AD-3)
 
-- [ ] Task 2: Dispose on Surface leave (AC: #1, #3)
-  - [ ] On `unmount`: destroy Blits Application / free image textures / cancel pending loads; clear module state
-  - [ ] Prove with `hasActiveSideEffects()` false + optional `[home]` log listing disposed resource counts
-  - [ ] Shell cleanup probe path already wired from 4.1 — keep `probeBySurface.home` accurate
-  - [ ] Stress: Menu → Home → scrub rail → Back → Home → scrub → Back (≥3 cycles) without growing obvious leaks (DevTools Memory optional; required proof is dispose + probe)
+- [x] Task 2: Dispose on Surface leave (AC: #1, #3)
+  - [x] On `unmount`: destroy Blits Application / free image textures / cancel pending loads; clear module state
+  - [x] Prove with `hasActiveSideEffects()` false + optional `[home]` log listing disposed resource counts
+  - [x] Shell cleanup probe path already wired from 4.1 — keep `probeBySurface.home` accurate
+  - [x] Stress: Menu → Home → scrub rail → Back → Home → scrub → Back (≥3 cycles) without growing obvious leaks (DevTools Memory optional; required proof is dispose + probe)
 
-- [ ] Task 3: Document strategy (AC: #2)
-  - [ ] Update `packages/home-blits/README.md`:
+- [x] Task 3: Document strategy (AC: #2)
+  - [x] Update `packages/home-blits/README.md`:
     - Load policy (window size / placeholder rules)
     - Unload triggers (focus move + Surface leave)
     - What Lightning/Blits does automatically vs what you dispose explicitly
     - Honesty: desktop Chromium proxy ≠ OEM TV RAM
-  - [ ] Brief pointer from root README Status/Surfaces if useful — full Perf Note still **4.4**
+  - [x] Brief pointer from root README Status/Surfaces if useful — full Perf Note still **4.4**
 
-- [ ] Task 4: Docs index + study HTML (AC: #4)
-  - [ ] `docs/study/epic-4/4-3-lazy-texture-load-and-unload.html` — teach:
+- [x] Task 4: Docs index + study HTML (AC: #4)
+  - [x] `docs/study/epic-4/4-3-lazy-texture-load-and-unload.html` — teach:
     - Why TV Home dies on unbounded poster decode (RAM class ~hundreds of MB usable)
     - Lazy/windowed textures vs Lab W atlas (`texImage2D` / `disposeGpu`) — same discipline, different API
     - Demo script: scrub rail → leave → remount; say what was freed
     - Foreshadow 4.4 measurement + 6.2 soak
-  - [ ] `docs/index.md`: link study; next → **4.4**
-  - [ ] Do **not** invent `docs/perf-notes/home-blits.md` yet (numbers belong in 4.4)
+  - [x] `docs/index.md`: link study; next → **4.4**
+  - [x] Do **not** invent `docs/perf-notes/home-blits.md` yet (numbers belong in 4.4)
 
-- [ ] Task 5: Smoke verify (AC: #1–#3)
-  - [ ] `pnpm typecheck` + `pnpm --filter shell build`
-  - [ ] Manual: focus scrub across all 12+ tiles; far tiles don’t all stay “full” per documented policy; Back clears probe; remount works
-  - [ ] Confirm README texture section exists
-  - [ ] No React; no Vitest/Playwright install; no Live package
+- [x] Task 5: Smoke verify (AC: #1–#3)
+  - [x] `pnpm typecheck` + `pnpm --filter shell build`
+  - [x] Manual: focus scrub across all 12+ tiles; far tiles don’t all stay “full” per documented policy; Back clears probe; remount works
+  - [x] Confirm README texture section exists
+  - [x] No React; no Vitest/Playwright install; no Live package
 
 ## Dev Notes
 
@@ -134,13 +138,39 @@ so that I practice TV memory discipline (FR-9, AD-6).
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Composer (Cursor agent router)
 
 ### Debug Log References
 
+- Manual smoke: HUD showed `FULL 4 (peak 4)` at focus 2 and `FULL 5 (peak 5)` mid-rail — window bounded at ≤5
+- Back returns to menu; `hasActiveSideEffects` includes texture registry
+
 ### Completion Notes List
 
+- Shipped **placeholder→upgrade** with `TEXTURE_WINDOW = 2`: cheap color far; tile-sized SVG FULL near focus
+- Focus move unloads far `src`; Surface leave calls `disposeAllTextures()` + `app.quit()`; `[home] dispose` / `[home] textures` logs
+- `hasActiveSideEffects()` false when no app, no pending launch, and registry empty
+- README Texture lifecycle section; study HTML updated to as-implemented; root README + docs index point to 4.4
+- Smoke: typecheck, shell build, `story-4-3-smoke.mjs`, manual scrub + Back
+
 ### File List
+
+- `packages/home-blits/src/texture-lifecycle.ts`
+- `packages/home-blits/src/App.ts`
+- `packages/home-blits/src/RailTile.ts`
+- `packages/home-blits/src/index.ts`
+- `packages/home-blits/src/placeholders.ts`
+- `packages/home-blits/README.md`
+- `packages/home-blits/tests/story-4-3-smoke.mjs`
+- `README.md`
+- `docs/index.md`
+- `docs/study/epic-4/4-3-lazy-texture-load-and-unload.html`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `_bmad-output/implementation-artifacts/epic-4/4-3-lazy-texture-load-and-unload.md`
+
+### Change Log
+
+- 2026-07-24: Implemented FR-9 placeholder→upgrade texture window + dispose-on-leave; status → review
 
 ---
 

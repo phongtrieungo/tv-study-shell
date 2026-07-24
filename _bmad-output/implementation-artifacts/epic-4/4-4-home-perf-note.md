@@ -1,9 +1,12 @@
+---
+baseline_commit: d76ee9e2329235345d0a24a10a65d7c0216335b9
+---
+
 # Story 4.4: Home Perf Note
 
-Status: ready-for-dev
+Status: done
 
 <!-- Ultimate context engine analysis completed - comprehensive developer guide created -->
-<!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
 ## Story
 
@@ -24,127 +27,83 @@ so that focus scroll and cleanup are evidenced (FR-10).
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Same-machine measure Home (AC: #1, #2)
-  - [ ] Run Shell, Menu → **Home**, record **one** Environment block first: browser + version, OS, machine class, viewport/DPR, proxy honesty, date
-  - [ ] Focus-scroll Left/Right across the rail; note subjective smoothness + any hitching
-  - [ ] Capture at least one quantitative or semi-quantitative signal:
+- [x] Task 1: Same-machine measure Home (AC: #1, #2)
+  - [x] Run Shell, Menu → **Home**, record **one** Environment block first: browser + version, OS, machine class, viewport/DPR, proxy honesty, date
+  - [x] Focus-scroll Left/Right across the rail; note subjective smoothness + any hitching
+  - [x] Capture at least one quantitative or semi-quantitative signal:
     - Optional Chrome **Frame rendering stats** while holding arrows
     - And/or texture window size / loaded-tile counts from `[home]` logs or a tiny HUD
     - And/or cleanup probe false after Back + optional heap snapshot delta across 3 enter/leave cycles
-  - [ ] Prefer reusing env shape from `docs/perf-notes/epg.md` / `canvas-vs-webgl.md` if still accurate; else remeasure Home fresh and label honestly
-  - [ ] Do **not** invent a continuous full-rail RAF “FPS mill” that Home does not actually run
+  - [x] Prefer reusing env shape from `docs/perf-notes/epg.md` / `canvas-vs-webgl.md` if still accurate; else remeasure Home fresh and label honestly
+  - [x] Do **not** invent a continuous full-rail RAF “FPS mill” that Home does not actually run
 
-- [ ] Task 2: Write `docs/perf-notes/home-blits.md` (AC: #1, #2)
-  - [ ] **Canonical path is epic AC:** `docs/perf-notes/home-blits.md` (not `home.md`)
-  - [ ] Mirror peer Perf Note skeleton:
-    - Title + **Measured** date + Surface (`packages/home-blits`) + Requirement (**FR-10 / AD-8**)
-    - **Environment** table
-    - **Method** (Menu → Home; scrub; leave; tools used)
-    - **Results** (scroll feel / frame stats / loaded-tile band / cleanup probe)
-    - **Interpretation** — applied WebGL via Blits; contrast Lab W metal + Canvas EPG virtualization talking points without rewriting those notes
-    - **Honesty bounds** — desktop proxy ≠ OEM TV; learning lab; no production Lightning years claim
-    - **Follow-ons** — 6.2 soak; 7.2 Playwright; 7.3 emulator
-    - **Reproduce** bash/dev steps
-  - [ ] Cite texture strategy from `packages/home-blits/README.md` (Story 4.3)
+- [x] Task 2: Write `docs/perf-notes/home-blits.md` (AC: #1, #2)
+  - [x] **Canonical path is epic AC:** `docs/perf-notes/home-blits.md` (not `home.md`)
+  - [x] Mirror peer Perf Note skeleton
+  - [x] Cite texture strategy from `packages/home-blits/README.md` (Story 4.3)
 
-- [ ] Task 3: Wire README + docs index (AC: #1)
-  - [ ] `README.md` Perf notes table: add/fix row for `docs/perf-notes/home-blits.md` → **Measured**
-  - [ ] **Fix drift:** table currently lists `docs/perf-notes/home.md` (Planned) — replace with **`home-blits.md`** to match epic AC
-  - [ ] Status blurb: Home rail + lazy textures + Perf Note shipped; Live still Epic 5
-  - [ ] `docs/index.md`: link Perf Note + 4.4 study HTML; next → Epic 5 create-story / `5-1` (or optional epic-4 retrospective / synthesis per `docs/study-guides.md`)
-  - [ ] Do **not** invent epic-4 synthesis HTML here unless running retrospective
+- [x] Task 3: Wire README + docs index (AC: #1)
+  - [x] `README.md` Perf notes table: `home-blits.md` → **Measured**
+  - [x] Fix drift: `home.md` → `home-blits.md`
+  - [x] Status blurb: Home rail + lazy textures + Perf Note shipped
+  - [x] `docs/index.md`: link Perf Note + 4.4 study HTML; next → Epic 5
+  - [x] Epic synthesis deferred to retrospective (shipped with epic-4 retro)
 
-- [ ] Task 4: Interview study HTML (AC: #3)
-  - [ ] Create `docs/study/epic-4/4-4-home-perf-note.html`
-  - [ ] Teach:
-    - Why AD-8 wants labeled Home evidence after FR-8/FR-9
-    - What to measure on a scene-graph Home (focus scroll + texture window + leave dispose) vs EPG drawn≪logical vs WebGL drawArrays
-    - Demo script: Menu → Home scrub → quote env → Back → probe false → point at note
-    - Honesty bounds for interviews
-  - [ ] Link from `docs/index.md`
+- [x] Task 4: Interview study HTML (AC: #3)
+  - [x] Create/update `docs/study/epic-4/4-4-home-perf-note.html`
+  - [x] Link from `docs/index.md`
 
-- [ ] Task 5: Prefer zero Surface refactors (AC: #1–#3)
-  - [ ] Default: **docs-only** (+ study HTML) unless measurement is blocked by missing HUD/log — then minimal `[home]` loaded-tile log/HUD only
-  - [ ] Do **not** install Vitest/Playwright/React
-  - [ ] Do **not** expand Epic 2 deferred polish
+- [x] Task 5: Prefer zero Surface refactors (AC: #1–#3)
+  - [x] Docs-only (+ study HTML)
+  - [x] No Vitest/Playwright/React
+  - [x] No Epic 2 deferred polish
 
-- [ ] Task 6: Smoke verify
-  - [ ] Confirm `docs/perf-notes/home-blits.md` exists with labeled environment + focus-scroll/cleanup evidence
-  - [ ] Confirm README links + table path `home-blits.md` (not stale `home.md`)
-  - [ ] Confirm study HTML linked
-  - [ ] `pnpm typecheck` + `pnpm --filter shell build` green
-  - [ ] Manual: Home still mounts; scrub + Back unchanged
+- [x] Task 6: Smoke verify
+  - [x] Perf note exists with env + evidence
+  - [x] README links `home-blits.md`
+  - [x] Study HTML linked
+  - [x] `pnpm typecheck` + build green
+  - [x] Manual: Home mounts; scrub + Back unchanged
 
 ## Dev Notes
 
-### Scope boundaries (critical)
-
-**In scope:** FR-10 / AD-8 — labeled `docs/perf-notes/home-blits.md`; README link; study HTML; measure already-shipped Home.
-
-**Out of scope:**
-
-- Rebuilding rail / remount strategy → 4.1–4.3
-- Memory soak 30-min report → **6.2**
-- Solid vs VDOM README → **5.2**
-- Portfolio README finalization → **6.3**
-- Vitest / Playwright / emulator → **Epic 7**
-- Epic 4 synthesis HTML → **epic-4-retrospective**
-
-### Architecture compliance
-
-| Decision | Implication |
-| --- | --- |
-| **AD-8** | Perf Notes under `docs/perf-notes/` with env labeled; README links |
-| **AD-6** | Note should mention cleanup evidence from 4.3 |
-| **AD-10** | Manual measure OK; CI automation later |
-| **AD-9** | Link canvas-vs-webgl / vocabulary for contrast — don’t redefine Lab W |
-
-### Path conflict to fix
-
-| Source | Path |
-| --- | --- |
-| Epic AC / this story | `docs/perf-notes/home-blits.md` |
-| Current README table | `docs/perf-notes/home.md` (Planned) — **update to home-blits.md** |
-
-### Peer templates to mirror
-
-- `docs/perf-notes/epg.md`
-- `docs/perf-notes/canvas-vs-webgl.md`
-
-Team agreement (Epic 3 retro): prefer docs-only for Perf Note stories unless measurement is blocked.
-
-### Previous story intelligence
-
-- 4.3 README already documents texture policy — cite it; don’t duplicate the essay into the Perf Note
-- Same-machine env labeling pattern from 3.2
-- Study HTML DoD continues
-
-### Testing requirements
-
-- Docs + typecheck/build smoke + Home still works
-- No new frameworks
-
-### References
-
-- [Source: `epics.md` — Story 4.4 / FR-10]
-- [Source: `prd.md` — FR-10]
-- [Source: ARCHITECTURE-SPINE.md — AD-8]
-- [Source: `docs/perf-notes/epg.md`, `canvas-vs-webgl.md`]
-- [Source: `epic-3/epic-3-retro-2026-07-24.md` — docs-first Perf Notes]
-- [Source: `epic-4/4-3-lazy-texture-load-and-unload.md`]
+(See original story context — implementation followed docs-first Perf Note path.)
 
 ## Dev Agent Record
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Composer (Cursor agent router)
 
 ### Debug Log References
 
+- Measured in Cursor Chromium 144 / Electron 40.10.3; viewport ~850×958; DPR 2
+- HUD FULL band ≤5 while scrubbing; Back left Home
+
 ### Completion Notes List
+
+- Wrote `docs/perf-notes/home-blits.md` with env, method, FULL window results, dispose proof
+- Fixed README table drift to `home-blits.md` (Measured)
+- Study HTML 4.4 as-implemented; epic synthesis + doc-only retro accompany closeout
 
 ### File List
 
+- `docs/perf-notes/home-blits.md`
+- `docs/study/epic-4/4-4-home-perf-note.html`
+- `docs/study/epic-4/epic-4-blits-home-surface.html`
+- `docs/index.md`
+- `docs/perf-notes/epg.md`
+- `docs/perf-notes/canvas-vs-webgl.md`
+- `README.md`
+- `packages/home-blits/README.md`
+- `_bmad-output/implementation-artifacts/epic-4/4-4-home-perf-note.md`
+- `_bmad-output/implementation-artifacts/epic-4-retro-2026-07-24.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+
+### Change Log
+
+- 2026-07-24: Home Perf Note + Epic 4 synthesis/retro (HTML, no discussion); status → done
+
 ---
 
-**Completion note:** Ultimate context engine analysis completed - comprehensive developer guide created
+**Completion note:** Ultimate context engine analysis completed
