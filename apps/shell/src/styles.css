@@ -376,6 +376,48 @@ body {
   background: #12151c;
 }
 
+.home-blits {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  height: 100%;
+}
+
+.home-blits h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 600;
+  flex: 0 0 auto;
+}
+
+.home-blits__hint {
+  margin: 0;
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+  color: var(--muted);
+  line-height: 1.4;
+  flex: 0 0 auto;
+}
+
+.home-blits__stage {
+  flex: 1 1 auto;
+  min-height: 12rem;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #12151c;
+}
+
+.home-blits__stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .surface-stub h2 {
   margin: 0 0 0.75rem;
   font-size: clamp(1.5rem, 2.5vw, 2rem);

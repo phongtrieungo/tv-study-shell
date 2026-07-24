@@ -30,7 +30,7 @@ export function mount(
 
   const body = document.createElement('p');
   body.textContent = ctx?.surfaceId
-    ? `Mounted as “${ctx.surfaceId}”. Stub Surface for destinations not yet swapped off the registry (EPG → @tvshell/epg-canvas; WebGL Lab → @tvshell/webgl-lab).`
+    ? `Mounted as “${ctx.surfaceId}”. Stub Surface for destinations not yet swapped off the registry (Home → @tvshell/home-blits; EPG → @tvshell/epg-canvas; WebGL Lab → @tvshell/webgl-lab; Live still stub).`
     : 'Mounted. Press Back to unmount and return to the menu.';
 
   const probe = document.createElement('p');

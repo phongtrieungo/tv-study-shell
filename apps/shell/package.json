@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tvshell/epg-canvas": "workspace:*",
+    "@tvshell/home-blits": "workspace:*",
     "@tvshell/shared": "workspace:*",
     "@tvshell/surface-stub": "workspace:*",
     "@tvshell/webgl-lab": "workspace:*"

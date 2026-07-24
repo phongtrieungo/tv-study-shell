@@ -26,6 +26,10 @@ Generated: 2026-07-22 · Updated: 2026-07-24 (Epic 3 retrospective + synthesis)
 | Study plan | `../interview-study-plan.html` |
 | Study HTML convention | [study-guides.md](study-guides.md) |
 
+## Next implementation step
+
+Epic **4** in progress — Story **4.1** Blits in-page mount spike shipped (`packages/home-blits`). Next: implement **4.2** focusable Home rail. Orientation: [webgl-investment.md](webgl-investment.md) · Home ADR: `../packages/home-blits/README.md`. From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).
+
 ## Study guides
 
 - **Epic 1:** [Monorepo Shell Foundation](study/epic-1/epic-1-monorepo-shell-foundation.html) (synthesis)
@@ -44,7 +48,4 @@ Generated: 2026-07-22 · Updated: 2026-07-24 (Epic 3 retrospective + synthesis)
 - Perf Note: [Canvas vs WebGL same-machine compare](perf-notes/canvas-vs-webgl.md)
 - Story 3.3: [WebGL vocabulary README](study/epic-3/3-3-webgl-vocabulary-readme-section.html)
 - Vocabulary: [README WebGL vocabulary (this lab)](../README.md#webgl-vocabulary-this-lab)
-
-## Next implementation step
-
-Epic **3** closed (Lab W + Perf Note + vocabulary + [synthesis](study/epic-3/epic-3-webgl-lab-surface.html)). Next: create-story / implement **Epic 4** Blits Home — start with `4-1-spike-blits-mount-strategy`. Orientation: [webgl-investment.md](webgl-investment.md). From 1.2 on, each done story gets a practical interview study HTML under `docs/study/epic-N/`; each finished epic gets a synthesis HTML — see [study-guides.md](study-guides.md).
+- Story 4.1: [Spike Blits mount strategy](study/epic-4/4-1-spike-blits-mount-strategy.html)

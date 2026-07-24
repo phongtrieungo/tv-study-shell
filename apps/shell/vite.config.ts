@@ -13,6 +13,7 @@ export default defineConfig({
       '@tvshell/surface-stub',
       '@tvshell/epg-canvas',
       '@tvshell/webgl-lab',
+      '@tvshell/home-blits',
     ],
   },
 });

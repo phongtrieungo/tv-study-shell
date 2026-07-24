@@ -1,5 +1,6 @@
 import { getDpadAction } from '@tvshell/shared';
 import * as epgCanvas from '@tvshell/epg-canvas';
+import * as homeBlits from '@tvshell/home-blits';
 import * as surfaceStub from '@tvshell/surface-stub';
 import * as webglLab from '@tvshell/webgl-lab';
 import { renderChrome } from './chrome/render-chrome.js';
@@ -23,6 +24,11 @@ const stubModule: SurfaceModule = {
   unmount: surfaceStub.unmount,
 };
 
+const homeModule: SurfaceModule = {
+  mount: homeBlits.mount,
+  unmount: homeBlits.unmount,
+};
+
 const epgModule: SurfaceModule = {
   mount: epgCanvas.mount,
   unmount: epgCanvas.unmount,
@@ -33,16 +39,16 @@ const webglModule: SurfaceModule = {
   unmount: webglLab.unmount,
 };
 
-// EPG + WebGL Lab are real; Home / Live remain on the stub until Epics 4–5.
+// Home + EPG + WebGL Lab are real; Live remains on the stub until Epic 5.
 const registry = {
-  home: stubModule,
+  home: homeModule,
   live: stubModule,
   epg: epgModule,
   'webgl-lab': webglModule,
 } as const satisfies SurfaceRegistry;
 
 const probeBySurface: Record<SurfaceId, () => boolean> = {
-  home: surfaceStub.hasActiveSideEffects,
+  home: homeBlits.hasActiveSideEffects,
   live: surfaceStub.hasActiveSideEffects,
   epg: epgCanvas.hasActiveSideEffects,
   'webgl-lab': webglLab.hasActiveSideEffects,
@@ -158,5 +164,5 @@ if (import.meta.hot) {
 console.info('[shell] chrome ready', {
   surfaces: SURFACE_MENU.map((item) => item.id),
   focused: focus.getFocusedId(),
-  host: 'epg → @tvshell/epg-canvas; webgl-lab → @tvshell/webgl-lab; home/live → surface-stub',
+  host: 'home → @tvshell/home-blits; epg → @tvshell/epg-canvas; webgl-lab → @tvshell/webgl-lab; live → surface-stub',
 });

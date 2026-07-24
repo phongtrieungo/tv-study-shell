@@ -13,6 +13,9 @@ importers:
       '@tvshell/epg-canvas':
         specifier: workspace:*
         version: link:../../packages/epg-canvas
+      '@tvshell/home-blits':
+        specifier: workspace:*
+        version: link:../../packages/home-blits
       '@tvshell/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -32,6 +35,19 @@ importers:
 
   packages/epg-canvas:
     dependencies:
+      '@tvshell/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+
+  packages/home-blits:
+    dependencies:
+      '@lightningjs/blits':
+        specifier: 2.8.4
+        version: 2.8.4
       '@tvshell/shared':
         specifier: workspace:*
         version: link:../shared
@@ -220,6 +236,17 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@jridgewell/sourcemap-codec@1.5.5':
+    resolution: {integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==}
+
+  '@lightningjs/blits@2.8.4':
+    resolution: {integrity: sha512-MDhIey/drPXrrW9DDmXLISnigyg1NpRQlVf8sUBh9bWWndISEstTLRLxcYAxPV6KLRxFqSWrAKxMJlWUHk/2Ew==}
+    hasBin: true
+
+  '@lightningjs/renderer@3.1.4':
+    resolution: {integrity: sha512-2sjup4c6sjLbeT1jxEUaikoaH+9HzTC2CMhzLjCp+vl2W7EAyNqYJjyoRTLjGBDADs76N+jQaXlzrOZds1Tqfw==}
+    engines: {node: '>= 18.0.0', npm: '>= 10.0.0', pnpm: '>= 10.17.0'}
+
   '@rollup/rollup-android-arm-eabi@4.62.2':
     resolution: {integrity: sha512-6o7ZLZK+BeenkZCFNDXqpbjw9bD6nuWonvS/lwQJp7NoVVxm6p3qE7qQ5jGuBjiFsgvqjD8mZAU5oWxTmbOeOg==}
     cpu: [arm]
@@ -366,6 +393,9 @@ packages:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
+
+  magic-string@0.30.21:
+    resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
   nanoid@3.3.16:
     resolution: {integrity: sha512-bzlKTyNJ7+LdGIIwy8ijFpIqEQIvafahV7eYykJ8Cvh42EdJeODoJ6gUJXpQJvej1BddH8OqTXZNE/KfbWAu8Q==}
@@ -521,6 +551,15 @@ snapshots:
   '@esbuild/win32-x64@0.25.12':
     optional: true
 
+  '@jridgewell/sourcemap-codec@1.5.5': {}
+
+  '@lightningjs/blits@2.8.4':
+    dependencies:
+      '@lightningjs/renderer': 3.1.4
+      magic-string: 0.30.21
+
+  '@lightningjs/renderer@3.1.4': {}
+
   '@rollup/rollup-android-arm-eabi@4.62.2':
     optional: true
 
@@ -633,6 +672,10 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  magic-string@0.30.21:
+    dependencies:
+      '@jridgewell/sourcemap-codec': 1.5.5
 
   nanoid@3.3.16: {}
 
